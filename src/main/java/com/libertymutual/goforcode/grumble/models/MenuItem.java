@@ -23,6 +23,8 @@ public class MenuItem {
 	
 	private String basePrice;
 	
+	private String menuApiKey;
+	
 	public MenuItem() {}	
 	
 	public MenuItem(String name) {
@@ -70,6 +72,22 @@ public class MenuItem {
 
 	public void setBasePrice(String basePrice) {
 		this.basePrice = basePrice;
+	}
+
+	public String getMenuApiKey() {
+		return menuApiKey;
+	}
+
+	public void setMenuApiKey(String menuApiKey) {
+		this.menuApiKey = menuApiKey;
+	}
+
+	public Restaurant getRestaurant() {
+		return restaurant;
+	}
+
+	public void setRestaurant(Restaurant restaurant) {
+		this.restaurant = restaurant;
 	}
 	
 	
