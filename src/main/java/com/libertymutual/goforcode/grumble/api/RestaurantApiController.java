@@ -22,6 +22,7 @@ import com.libertymutual.goforcode.grumble.models.Restaurant;
 @RequestMapping ("/api")
 public class RestaurantApiController {
 	
+	//used to get random index
 	private Random randomGenerator;
 	
 	public RestaurantApiController() {
