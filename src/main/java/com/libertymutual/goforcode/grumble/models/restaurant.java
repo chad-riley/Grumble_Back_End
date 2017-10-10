@@ -30,7 +30,7 @@ public class Restaurant {
 	private String restaurantName;
 	
 	@OneToMany(mappedBy="restaurant", cascade=CascadeType.ALL)
-	private List<MenuItems> menuItems;
+	private List<MenuItem> menuItems;
 	
 	public Long getId() {
 		return id;
@@ -56,11 +56,11 @@ public class Restaurant {
 		this.restaurantName = restaurantName;
 	}
 
-	public List<MenuItems> getMenuItems() {
+	public List<MenuItem> getMenuItems() {
 		return menuItems;
 	}
 
-	public void setMenuItems(List<MenuItems> menuItems) {
+	public void setMenuItems(List<MenuItem> menuItems) {
 		this.menuItems = menuItems;
 	}
 	
