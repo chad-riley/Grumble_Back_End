@@ -30,7 +30,9 @@ public class Restaurant {
 	private String restaurantName;
 	
 	@OneToMany(mappedBy="restaurant", cascade=CascadeType.ALL)
-	private List<MenuItem> menuItems;
+	public List<MenuItem> menuItems;
+	
+	//getters and setters:
 	
 	public Long getId() {
 		return id;
