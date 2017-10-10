@@ -13,11 +13,14 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+
 @Entity
 public class Restaurant {
 
 	@Id
+
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
@@ -140,3 +143,4 @@ public class Restaurant {
 	}
 
 }
+
