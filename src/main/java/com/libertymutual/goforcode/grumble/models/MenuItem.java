@@ -23,6 +23,12 @@ public class MenuItem {
 	
 	private String basePrice;
 	
+	public MenuItem() {}	
+	
+	public MenuItem(String name) {
+		this.name = name;
+	}
+	
 	@ManyToOne
 	private Restaurant restaurant;
 
