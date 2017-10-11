@@ -17,6 +17,7 @@ public class MenuItem {
 	@Column(length=255, nullable=false)
 	private String name;
 	
+	@Column(length=500)
 	private String description;
 	
 	private String imageURL;
