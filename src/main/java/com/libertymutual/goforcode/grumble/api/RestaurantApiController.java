@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import us.monoid.json.JSONArray;
 import us.monoid.json.JSONException;
+import us.monoid.web.JSONResource;
 import us.monoid.web.Resty;
 
 import com.libertymutual.goforcode.grumble.models.MenuItem;
@@ -106,7 +107,7 @@ public class RestaurantApiController {
 	}
 	
 	@GetMapping("/item")
-	public MenuItem getAnotherMenuItem() throws IOException, JSONException {
+	public MenuItem getAnotherMenuItem() throws Exception {
 		this.declinedMenuItemRepo.save(this.currentItem);
 		
 		Resty r = new Resty();
@@ -152,7 +153,17 @@ public class RestaurantApiController {
 			System.out.println("Name of Item: " + menuItemList.get(index).getName());
 			System.out.println("Name of Item: " + menuItemList.get(index).getBasePrice());
 			System.out.println("Name of Item: " + menuItemList.get(index).getDescription());
+			JSONResource menuImage = r.json( 
+					"https://www.googleapis.com/customsearch/v1?q="+
+					currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+")+"+"+currentItem.getName().replaceAll(" ", "+")+"+"+
+					this.currentItem.getRestaurant().getCity().replaceAll(" ", "+")+"+"
+					+"&cx=008419413090451472490:9ehq9f7q5q8&searchType=image&key=AIzaSyBR1FQBAgE0KiZLS2eYLuer3r992uxJUSo&num=1&fields=items%2Flink");
 			//return menuItemRepo.findOne((long) index);
+			
+			JSONArray imageArray = (JSONArray) menuImage.get("items");
+			this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
+			
+			System.out.println(this.currentItem.getImageURL());
 			return this.currentItem;
 			
 		} catch (IOException ioe) {
