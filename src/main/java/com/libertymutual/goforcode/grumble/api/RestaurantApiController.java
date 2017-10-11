@@ -40,6 +40,7 @@ public class RestaurantApiController {
 	@GetMapping("/{city}")
 	public MenuItem newMenuItemRequest (@PathVariable String city) throws IOException, Exception {
 		Resty r = new Resty();
+		restaurantRepo.deleteAll();
 		
 		//Call EatStreet API to get list of restaurants in desired city
 		JSONArray restaurantArray = (JSONArray) r.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both&street-address="
@@ -54,6 +55,11 @@ public class RestaurantApiController {
 			oneRestaurant.setRestaurantName(restaurantArray.getJSONObject(i).getString("name"));
 			oneRestaurant.setLatitude(restaurantArray.getJSONObject(i).getString("latitude"));
 			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
+			oneRestaurant.setAddress(restaurantArray.getJSONObject(i).getString("streetAddress"));
+			oneRestaurant.setCity(restaurantArray.getJSONObject(i).getString("city"));
+			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
+			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
+			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
 //			System.out.println(oneRestaurant.getRestaurantName());
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);
@@ -85,7 +91,12 @@ public class RestaurantApiController {
 		}
 		
 		//Select random menu item and return it
-		index = randomGenerator.nextInt(menuItemList.size());
+		if (menuItemList.size() > 1) {
+			index = randomGenerator.nextInt(menuItemList.size() - 1);
+		} else {
+			return newMenuItemRequest(city);
+		}
+
 		this.currentItem = menuItemList.get(index);
 		System.out.println("Name of Item: " + menuItemList.get(index).getName());
 		System.out.println("Name of Item: " + menuItemList.get(index).getBasePrice());
