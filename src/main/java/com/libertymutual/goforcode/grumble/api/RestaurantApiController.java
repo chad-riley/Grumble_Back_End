@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import us.monoid.json.JSONArray;
+import us.monoid.json.JSONObject;
+import us.monoid.web.JSONResource;
 import us.monoid.web.Resty;
 
 import com.libertymutual.goforcode.grumble.models.MenuItem;
@@ -44,6 +46,8 @@ public class RestaurantApiController {
 			oneRestaurant.setRestaurantApiKey(restaurantArray.getJSONObject(i).getString("apiKey"));
 //			System.out.println(oneRestaurant.getRestaurantApiKey());
 			oneRestaurant.setRestaurantName(restaurantArray.getJSONObject(i).getString("name"));
+			oneRestaurant.setLatitude(restaurantArray.getJSONObject(i).getString("latitude"));
+			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
 //			System.out.println(oneRestaurant.getRestaurantName());
 			restaurantList.add(oneRestaurant);
 		}
@@ -51,6 +55,8 @@ public class RestaurantApiController {
 		//Using random generator to return random value based on size of restaurant list
 		int index = randomGenerator.nextInt(restaurantList.size());
 		String oneRestaurantKey = restaurantList.get(index).getRestaurantApiKey();
+		Restaurant restaurant = restaurantList.get(index);
+		String restaurantName = restaurantList.get(index).getRestaurantName();
 		System.out.println(restaurantList.get(index).getRestaurantName());
 		
 		//Call EatStreet API to get menu for desired restaurant
@@ -71,6 +77,14 @@ public class RestaurantApiController {
 				}
 			}			
 		}
+		
+		JSONArray searchPhotoReference = r.json("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + restaurant.getLatitude() + ","
+				+ restaurant.getLongitude() + "&radius=500&type=restaurant"
+				+ "&key=AIzaSyByWFw32gK2h8UglFKX3ctHy0eLqsI4UBU").toObject().getJSONArray("results");
+		
+		System.out.println(searchPhotoReference);
+		
+		//keyword=" + restaurantName + menuItemList.get(index).getName() 
 		
 		//Select random menu item and return it
 		index = randomGenerator.nextInt(menuItemList.size());

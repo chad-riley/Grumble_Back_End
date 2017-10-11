@@ -45,9 +45,9 @@ public class Restaurant {
 
 	private String phone;
 
-	private double latitude;
+	private String latitude;
 
-	private double longitude;
+	private String longitude;
 
 	public Restaurant() {}
 	
@@ -126,19 +126,19 @@ public class Restaurant {
 		this.phone = phone;
 	}
 
-	public double getLatitude() {
+	public String getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(double latitude) {
+	public void setLatitude(String latitude) {
 		this.latitude = latitude;
 	}
 
-	public double getLongitude() {
+	public String getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(double longitude) {
+	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
 

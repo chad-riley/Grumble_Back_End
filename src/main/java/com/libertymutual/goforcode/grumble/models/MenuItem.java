@@ -68,6 +68,7 @@ public class MenuItem {
 
 	public String getBasePrice() {
 		return basePrice;
+
 	}
 
 	public void setBasePrice(String basePrice) {
