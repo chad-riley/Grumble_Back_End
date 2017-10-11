@@ -75,6 +75,7 @@ public class RestaurantApiController {
 				MenuItem oneItem = new MenuItem();
 				oneItem.setName(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
 				oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("basePrice").toString());
+				oneItem.setRestaurant(restaurantList.get(index));
 				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description")
 					&& Double.parseDouble(oneItem.getBasePrice()) > 3.00) {
 					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("description").toString());
@@ -107,7 +108,6 @@ public class RestaurantApiController {
 		System.out.println(restaurantList.get(index).getRestaurantName());
 		
 		//Call EatStreet API to get menu for desired restaurant
-		////Look into error handling for API calls..................................................
 		try {
 			JSONArray menuSections = r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
 					+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
@@ -119,6 +119,7 @@ public class RestaurantApiController {
 					MenuItem oneItem = new MenuItem();
 					oneItem.setName(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
 					oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("basePrice").toString());
+					oneItem.setRestaurant(restaurantList.get(index));
 					if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description")
 						&& Double.parseDouble(oneItem.getBasePrice()) > 3.00
 						&& declinedMenuItemRepo.findByNameContaining(oneItem.getName()).size() == 0) {
@@ -130,17 +131,12 @@ public class RestaurantApiController {
 			
 			//Select random menu item and return it
 			if (menuItemList.size() > 1) {
-				System.out.println(menuItemList.size());
-				System.out.println("index before if:" + index);
 				index = randomGenerator.nextInt(menuItemList.size() - 1);
-				System.out.println("index after if:" + index);
 			} else {
-				System.out.println("index in else:" + index);
-				System.out.println("size check is working!!!!!!!!!!!!!!!");
+				System.out.println("size check is working!");
 				return getAnotherMenuItem();
 			}
 			
-			System.out.println("index after both:" + index);
 			this.currentItem = menuItemList.get(index);
 			System.out.println("Name of Item: " + menuItemList.get(index).getName());
 			System.out.println("Name of Item: " + menuItemList.get(index).getBasePrice());
@@ -149,7 +145,7 @@ public class RestaurantApiController {
 			return this.currentItem;
 			
 		} catch (IOException ioe) {
-			System.out.println("exception check is working!!!!!!!!!!!!!!!");
+			System.out.println("exception check is working!");
 			return getAnotherMenuItem();
 		}
 	}
