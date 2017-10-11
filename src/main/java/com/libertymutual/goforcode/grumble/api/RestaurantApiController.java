@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import us.monoid.web.Resty;
 
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 import com.libertymutual.goforcode.grumble.models.Restaurant;
+import com.libertymutual.goforcode.grumble.services.MenuItemRepository;
+import com.libertymutual.goforcode.grumble.services.RestaurantRepository;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -26,12 +29,16 @@ public class RestaurantApiController {
 	
 	//used to get random index
 	private Random randomGenerator;
+	private RestaurantRepository restaurantRepo;
+	private MenuItemRepository menuItemRepo;
 	
-	public RestaurantApiController() {
+	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository menuItemRepo) {
 		randomGenerator = new Random();
+		this.restaurantRepo = restaurantRepo;
+		this.menuItemRepo = menuItemRepo;
 	}
 	
-	@PostMapping("/{city}")
+	@GetMapping("/{city}")
 	public MenuItem newMenuItemRequest (@PathVariable String city) throws IOException, Exception {
 		Resty r = new Resty();
 		
@@ -50,6 +57,7 @@ public class RestaurantApiController {
 			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
 //			System.out.println(oneRestaurant.getRestaurantName());
 			restaurantList.add(oneRestaurant);
+			restaurantRepo.save(oneRestaurant);
 		}
 		
 		//Using random generator to return random value based on size of restaurant list
@@ -74,23 +82,17 @@ public class RestaurantApiController {
 					&& Double.parseDouble(oneItem.getBasePrice()) > 3.00) {
 					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("description").toString());
 					menuItemList.add(oneItem);
+					menuItemRepo.save(oneItem);
 				}
 			}			
 		}
-		
-		JSONArray searchPhotoReference = r.json("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + restaurant.getLatitude() + ","
-				+ restaurant.getLongitude() + "&radius=500&type=restaurant"
-				+ "&key=AIzaSyByWFw32gK2h8UglFKX3ctHy0eLqsI4UBU").toObject().getJSONArray("results");
-		
-		System.out.println(searchPhotoReference);
-		
-		//keyword=" + restaurantName + menuItemList.get(index).getName() 
 		
 		//Select random menu item and return it
 		index = randomGenerator.nextInt(menuItemList.size());
 		System.out.println("Name of Item: " + menuItemList.get(index).getName());
 		System.out.println("Name of Item: " + menuItemList.get(index).getBasePrice());
 		System.out.println("Name of Item: " + menuItemList.get(index).getDescription());
+		//return menuItemRepo.findOne((long) index);
 		return menuItemList.get(index);
 	}
 
