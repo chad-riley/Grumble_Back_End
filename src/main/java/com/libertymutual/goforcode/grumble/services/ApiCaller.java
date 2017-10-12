@@ -24,8 +24,8 @@ public class ApiCaller {
 	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude) throws IOException, Exception {
 		Resty r = new Resty();
 		return (JSONArray) r
-				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both&latitude=" + latitude + "&longitude=" + longitude +
-						 "&access-token=44dbbeccae3c7537")
+				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
+						"method=both&access-token=44dbbeccae3c7537")
 				.get("restaurants");
 	}
 	
