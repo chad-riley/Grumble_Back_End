@@ -68,7 +68,7 @@ public class RestaurantApiController {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
 				
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
@@ -127,7 +127,7 @@ public class RestaurantApiController {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
 				
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
@@ -187,7 +187,7 @@ public class RestaurantApiController {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
 				
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {

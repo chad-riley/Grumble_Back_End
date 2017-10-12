@@ -39,10 +39,13 @@ public class ApiCaller {
 	//Call Google Custom Search API to get single picture URL for specific menu item
 	public JSONResource callApiToRetrieveMenuItemPictureURL(MenuItem currentItem) throws IOException {
 		Resty r = new Resty();
-		return r.json("https://www.googleapis.com/customsearch/v1?q=food+"
-//					+ currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+") + "+"
-				+ currentItem.getName().replaceAll(" ", "+") + "+"
-//					+ this.currentItem.getRestaurant().getCity().replaceAll(" ", "+") + "+"
-				+ "&cx=002392119250457641008:zovcx9rlbaw&searchType=image&key=AIzaSyCPEZNXOBI9ZfcEzcEZfDjexTysIHeaScU&num=1&fields=items%2Flink");
+		String url = "https://www.googleapis.com/customsearch/v1?q=food+"
+//				+ currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+") + "+"
+			+ currentItem.getName() + "+"
+//				+ this.currentItem.getRestaurant().getCity().replaceAll(" ", "+") + "+"
+			+ "&cx=002392119250457641008:zovcx9rlbaw&searchType=image&key=AIzaSyCPEZNXOBI9ZfcEzcEZfDjexTysIHeaScU&num=1&fields=items%2Flink";
+		url = url.replaceAll(" ", "+");
+		url = url.replaceAll("\"", "");
+		return r.json(url);
 	}
 }

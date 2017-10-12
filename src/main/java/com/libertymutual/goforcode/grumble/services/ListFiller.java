@@ -36,7 +36,7 @@ public class ListFiller {
 	// Populate a list of menu items based on results of API, item added if it
 	// contains description and costs more than $3, exclude items that contain 
 	// the text party or catering
-	public List<MenuItem> fillMyMenuItemList(JSONArray menuSections, Restaurant restaurant) throws IOException, JSONException {
+	public List<MenuItem> fillMyMenuItemList(JSONArray menuSections, Restaurant restaurant, MenuItemRepository declinedMenuItemRepo) throws IOException, JSONException {
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		for (int i = 0; i < menuSections.length(); i++) {
 			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
@@ -47,9 +47,11 @@ public class ListFiller {
 						.get("basePrice").toString());
 				oneItem.setRestaurant(restaurant);
 				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description") 
-					&& Double.parseDouble(oneItem.getBasePrice()) > 3.00
+					&& Double.parseDouble(oneItem.getBasePrice()) > 4.00
 					&& !oneItem.getName().toLowerCase().contains("party")
-					&& !oneItem.getName().toLowerCase().contains("catering")) {
+					&& !oneItem.getName().toLowerCase().contains("catering")
+					&& declinedMenuItemRepo.findByNameContaining(oneItem.getName()).size() == 0) 
+				{
 					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)
 							.get("description").toString());
 					menuItemList.add(oneItem);
