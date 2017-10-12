@@ -20,6 +20,7 @@ import com.libertymutual.goforcode.grumble.models.Restaurant;
 import com.libertymutual.goforcode.grumble.services.MenuItemRepository;
 import com.libertymutual.goforcode.grumble.services.RestaurantRepository;
 import com.libertymutual.goforcode.grumble.services.ApiCaller;
+import com.libertymutual.goforcode.grumble.services.ListFiller;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -31,42 +32,27 @@ public class RestaurantApiController {
 	private MenuItemRepository declinedMenuItemRepo;
 	private MenuItem currentItem;
 	private ApiCaller apiCaller;
+	private ListFiller listFiller;
 
 	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository declinedMenuItemRepo) {
 		randomGenerator = new Random();
 		this.restaurantRepo = restaurantRepo;
 		this.declinedMenuItemRepo = declinedMenuItemRepo;
 		this.apiCaller = new ApiCaller();
+		this.listFiller = new ListFiller();
 	}
 
 	@GetMapping("/{city}")
 	public MenuItem newMenuItemRequest(@PathVariable String city) throws IOException, Exception {
-		//Declare local variables
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
 		
 		restaurantRepo.deleteAll();
 
-		// Call EatStreet API to get list of restaurants in desired city
 		JSONArray restaurantArray = apiCaller.callApiToRetrieveRestaurants(city);
 
-		// Populate a list of Restaurants based on results of API
-		List<Restaurant> restaurantList = new ArrayList<Restaurant>();
-		for (int i = 0; i < restaurantArray.length(); i++) {
-			Restaurant oneRestaurant = new Restaurant();
-			oneRestaurant.setRestaurantApiKey(restaurantArray.getJSONObject(i).getString("apiKey"));
-			oneRestaurant.setRestaurantName(restaurantArray.getJSONObject(i).getString("name"));
-			oneRestaurant.setLatitude(restaurantArray.getJSONObject(i).getString("latitude"));
-			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
-			oneRestaurant.setAddress(restaurantArray.getJSONObject(i).getString("streetAddress"));
-			oneRestaurant.setCity(restaurantArray.getJSONObject(i).getString("city"));
-			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
-			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
-			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
-			restaurantList.add(oneRestaurant);
-			restaurantRepo.save(oneRestaurant);
-		}
+		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
@@ -82,7 +68,7 @@ public class RestaurantApiController {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = generateMenuItemList(menuSections, restaurant);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant);
 				
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
@@ -117,32 +103,15 @@ public class RestaurantApiController {
 	
 	@GetMapping("/{latitude}/{longitude}")
 	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude) throws IOException, Exception {
-		//Declare local variables
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
 		
 		restaurantRepo.deleteAll();
 
-		// Call EatStreet API to get list of restaurants in desired city
 		JSONArray restaurantArray = apiCaller.callApiToRetrieveRestaurants(latitude, longitude);
 
-		// Populate a list of Restaurants based on results of API
-		List<Restaurant> restaurantList = new ArrayList<Restaurant>();
-		for (int i = 0; i < restaurantArray.length(); i++) {
-			Restaurant oneRestaurant = new Restaurant();
-			oneRestaurant.setRestaurantApiKey(restaurantArray.getJSONObject(i).getString("apiKey"));
-			oneRestaurant.setRestaurantName(restaurantArray.getJSONObject(i).getString("name"));
-			oneRestaurant.setLatitude(restaurantArray.getJSONObject(i).getString("latitude"));
-			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
-			oneRestaurant.setAddress(restaurantArray.getJSONObject(i).getString("streetAddress"));
-			oneRestaurant.setCity(restaurantArray.getJSONObject(i).getString("city"));
-			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
-			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
-			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
-			restaurantList.add(oneRestaurant);
-			restaurantRepo.save(oneRestaurant);
-		}
+		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
@@ -158,7 +127,7 @@ public class RestaurantApiController {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = generateMenuItemList(menuSections, restaurant);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant);
 				
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
@@ -218,7 +187,7 @@ public class RestaurantApiController {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = generateMenuItemList(menuSections, restaurant);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant);
 				
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
@@ -255,29 +224,4 @@ public class RestaurantApiController {
 	private int getARandomIndex(int size) {
 		return randomGenerator.nextInt(size);
 	}
-
-	// Populate a list of menu items based on results of API, item added if it
-	// contains description and costs more than $3
-	private List<MenuItem> generateMenuItemList(JSONArray menuSections, Restaurant restaurant)
-			throws IOException, JSONException {
-		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
-		for (int i = 0; i < menuSections.length(); i++) {
-			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
-				MenuItem oneItem = new MenuItem();
-				oneItem.setName(
-						menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
-				oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)
-						.get("basePrice").toString());
-				oneItem.setRestaurant(restaurant);
-				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString()
-						.contains("description") && Double.parseDouble(oneItem.getBasePrice()) > 3.00) {
-					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)
-							.get("description").toString());
-					menuItemList.add(oneItem);
-				}
-			}
-		}
-		return menuItemList;
-	}
-
 }

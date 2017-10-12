@@ -11,7 +11,7 @@ import us.monoid.web.Resty;
 
 public class ApiCaller {
 	
-	//Call EatStreet API to get list of restaurants
+	//Call EatStreet API to get list of restaurants based on city
 	public JSONArray callApiToRetrieveRestaurants (String city) throws IOException, Exception {
 		Resty r = new Resty();
 		return (JSONArray) r
@@ -20,6 +20,7 @@ public class ApiCaller {
 				.get("restaurants");
 	}
 	
+	//Call EatStreet API to get list of restaurants based on lat and long
 	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude) throws IOException, Exception {
 		Resty r = new Resty();
 		return (JSONArray) r
