@@ -114,6 +114,82 @@ public class RestaurantApiController {
 		}// end of while loop; should have single menu item with photo at this point
 	return this.currentItem;
 	}
+	
+	@GetMapping("/{latitude}/{longitude}")
+	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude) throws IOException, Exception {
+		//Declare local variables
+		int index = 0;
+		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
+		JSONResource menuImage = new JSONResource();
+		
+		restaurantRepo.deleteAll();
+
+		// Call EatStreet API to get list of restaurants in desired city
+		JSONArray restaurantArray = apiCaller.callApiToRetrieveRestaurants(latitude, longitude);
+
+		// Populate a list of Restaurants based on results of API
+		List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+		for (int i = 0; i < restaurantArray.length(); i++) {
+			Restaurant oneRestaurant = new Restaurant();
+			oneRestaurant.setRestaurantApiKey(restaurantArray.getJSONObject(i).getString("apiKey"));
+			oneRestaurant.setRestaurantName(restaurantArray.getJSONObject(i).getString("name"));
+			oneRestaurant.setLatitude(restaurantArray.getJSONObject(i).getString("latitude"));
+			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
+			oneRestaurant.setAddress(restaurantArray.getJSONObject(i).getString("streetAddress"));
+			oneRestaurant.setCity(restaurantArray.getJSONObject(i).getString("city"));
+			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
+			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
+			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
+			restaurantList.add(oneRestaurant);
+			restaurantRepo.save(oneRestaurant);
+		}
+
+		boolean weHaveAValidIndex = false;
+		boolean weHaveAValidPhoto = false;
+		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
+			//Using random generator to return random value based on size of restaurant list
+			index = getARandomIndex(restaurantList.size());
+			Restaurant restaurant = restaurantList.get(index);
+			String oneRestaurantKey = restaurant.getRestaurantApiKey();
+			System.out.println(restaurant.getRestaurantName());
+			
+			try {
+				//Call API to retrieve menu which returns JSON array of menu sections
+				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
+				
+				//Call generate menu item list method to fill our list of menu items
+				menuItemList = generateMenuItemList(menuSections, restaurant);
+				
+				//Select random menu item and return it
+				if (menuItemList.size() > 1) {
+					index = getARandomIndex(menuItemList.size() - 1);
+					this.currentItem = menuItemList.get(index);
+					System.out.println("Name of Item: " + menuItemList.get(index).getName());
+					System.out.println("Price: " + menuItemList.get(index).getBasePrice());
+					System.out.println("Description: " + menuItemList.get(index).getDescription());
+					weHaveAValidIndex = true;
+				} else {
+					restaurantRepo.delete(restaurant);
+					System.out.println("Exception: size of menu item list");
+				} 
+			} catch (IOException ioe) {
+					System.out.println("Exception: input/output from API calls");
+			}				
+				
+			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
+			
+			try {
+				JSONArray imageArray = (JSONArray) menuImage.get("items");
+				this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
+				if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
+			} catch (JSONException je) {
+				System.out.println("Exception: could not find photo");
+				this.declinedMenuItemRepo.save(this.currentItem);
+				weHaveAValidPhoto = false;
+			}
+		}// end of while loop; should have single menu item with photo at this point
+	return this.currentItem;
+	}
 
 	@GetMapping("/item")
 	public MenuItem getAnotherMenuItem() throws Exception {

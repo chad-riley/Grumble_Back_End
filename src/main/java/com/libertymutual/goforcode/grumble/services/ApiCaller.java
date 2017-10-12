@@ -20,6 +20,14 @@ public class ApiCaller {
 				.get("restaurants");
 	}
 	
+	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude) throws IOException, Exception {
+		Resty r = new Resty();
+		return (JSONArray) r
+				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both&latitude=" + latitude + "&longitude=" + longitude +
+						 "&access-token=44dbbeccae3c7537")
+				.get("restaurants");
+	}
+	
 	//Call EatStreet API to get menu for specific restaurant
 	public JSONArray callApiToRetrieveMenu(String oneRestaurantKey) throws IOException, JSONException {
 		Resty r = new Resty();
@@ -30,7 +38,7 @@ public class ApiCaller {
 	//Call Google Custom Search API to get single picture URL for specific menu item
 	public JSONResource callApiToRetrieveMenuItemPictureURL(MenuItem currentItem) throws IOException {
 		Resty r = new Resty();
-		return r.json("https://www.googleapis.com/customsearch/v1?q="
+		return r.json("https://www.googleapis.com/customsearch/v1?q=food+"
 //					+ currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+") + "+"
 				+ currentItem.getName().replaceAll(" ", "+") + "+"
 //					+ this.currentItem.getRestaurant().getCity().replaceAll(" ", "+") + "+"
