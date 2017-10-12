@@ -78,7 +78,7 @@ public class RestaurantApiController {
 			index = getARandomIndex(restaurantList.size());
 			Restaurant restaurant = restaurantList.get(index);
 			String oneRestaurantKey = restaurant.getRestaurantApiKey();
-			System.out.println(restaurantList.get(index).getRestaurantName());
+			System.out.println(restaurant.getRestaurantName());
 			
 			try {
 				//Call API to retrieve menu which returns JSON array of menu sections
@@ -90,6 +90,10 @@ public class RestaurantApiController {
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
 					index = getARandomIndex(menuItemList.size() - 1);
+					this.currentItem = menuItemList.get(index);
+					System.out.println("Name of Item: " + menuItemList.get(index).getName());
+					System.out.println("Price: " + menuItemList.get(index).getBasePrice());
+					System.out.println("Description: " + menuItemList.get(index).getDescription());
 					weHaveAValidIndex = true;
 				} else {
 					restaurantRepo.delete(restaurant);
@@ -97,12 +101,7 @@ public class RestaurantApiController {
 				} 
 			} catch (IOException ioe) {
 					System.out.println("Exception: input/output from API calls");
-			}
-			
-				this.currentItem = menuItemList.get(index);
-				System.out.println("Name of Item: " + menuItemList.get(index).getName());
-				System.out.println("Price: " + menuItemList.get(index).getBasePrice());
-				System.out.println("Description: " + menuItemList.get(index).getDescription());
+			}				
 				
 				//Call picture URL method to return JSONResource containing single link to a menu item photo
 				menuImage = callApiToRetrieveMenuItemPictureURL();
@@ -152,6 +151,10 @@ public class RestaurantApiController {
 				//Select random menu item and return it
 				if (menuItemList.size() > 1) {
 					index = getARandomIndex(menuItemList.size() - 1);
+					this.currentItem = menuItemList.get(index);
+					System.out.println("Name of Item: " + menuItemList.get(index).getName());
+					System.out.println("Price: " + menuItemList.get(index).getBasePrice());
+					System.out.println("Description: " + menuItemList.get(index).getDescription());
 					weHaveAValidIndex = true;
 				} else {
 					restaurantRepo.delete(restaurant);
@@ -160,11 +163,6 @@ public class RestaurantApiController {
 			} catch (IOException ioe) {
 					System.out.println("Exception: input/output from API calls");
 			}
-			
-				this.currentItem = menuItemList.get(index);
-				System.out.println("Name of Item: " + menuItemList.get(index).getName());
-				System.out.println("Price: " + menuItemList.get(index).getBasePrice());
-				System.out.println("Description: " + menuItemList.get(index).getDescription());
 				
 				//Call picture URL method to return JSONResource containing single link to a menu item photo
 				menuImage = callApiToRetrieveMenuItemPictureURL();
