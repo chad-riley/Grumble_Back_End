@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import us.monoid.json.JSONArray;
 import us.monoid.json.JSONException;
 import us.monoid.web.JSONResource;
-import us.monoid.web.Resty;
 
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 import com.libertymutual.goforcode.grumble.models.Restaurant;
@@ -31,11 +30,13 @@ public class RestaurantApiController {
 	private RestaurantRepository restaurantRepo;
 	private MenuItemRepository declinedMenuItemRepo;
 	private MenuItem currentItem;
+	private ApiCaller apiCaller;
 
 	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository declinedMenuItemRepo) {
 		randomGenerator = new Random();
 		this.restaurantRepo = restaurantRepo;
 		this.declinedMenuItemRepo = declinedMenuItemRepo;
+		this.apiCaller = new ApiCaller();
 	}
 
 	@GetMapping("/{city}")
@@ -45,14 +46,10 @@ public class RestaurantApiController {
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
 		
-		Resty r = new Resty();
 		restaurantRepo.deleteAll();
 
 		// Call EatStreet API to get list of restaurants in desired city
-		JSONArray restaurantArray = (JSONArray) r
-				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both&street-address=" + city
-						+ "&access-token=44dbbeccae3c7537")
-				.get("restaurants");
+		JSONArray restaurantArray = apiCaller.callApiToRetrieveRestaurants(city);
 
 		// Populate a list of Restaurants based on results of API
 		List<Restaurant> restaurantList = new ArrayList<Restaurant>();
@@ -82,7 +79,7 @@ public class RestaurantApiController {
 			
 			try {
 				//Call API to retrieve menu which returns JSON array of menu sections
-				JSONArray menuSections = callApiToRetrieveMenu(oneRestaurantKey);
+				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
 				menuItemList = generateMenuItemList(menuSections, restaurant);
@@ -103,8 +100,7 @@ public class RestaurantApiController {
 					System.out.println("Exception: input/output from API calls");
 			}				
 				
-				//Call picture URL method to return JSONResource containing single link to a menu item photo
-				menuImage = callApiToRetrieveMenuItemPictureURL();
+			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
 			
 			try {
 				JSONArray imageArray = (JSONArray) menuImage.get("items");
@@ -143,7 +139,7 @@ public class RestaurantApiController {
 			
 			try {
 				//Call API to retrieve menu which returns JSON array of menu sections
-				JSONArray menuSections = callApiToRetrieveMenu(oneRestaurantKey);
+				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
 				menuItemList = generateMenuItemList(menuSections, restaurant);
@@ -164,8 +160,7 @@ public class RestaurantApiController {
 					System.out.println("Exception: input/output from API calls");
 			}
 				
-				//Call picture URL method to return JSONResource containing single link to a menu item photo
-				menuImage = callApiToRetrieveMenuItemPictureURL();
+			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
 			
 			try {
 				JSONArray imageArray = (JSONArray) menuImage.get("items");
@@ -183,24 +178,6 @@ public class RestaurantApiController {
 	// Takes a size parameter and returns a random integer within that range
 	private int getARandomIndex(int size) {
 		return randomGenerator.nextInt(size);
-	}
-
-	// Call EatStreet API to get menu for desired restaurant
-	private JSONArray callApiToRetrieveMenu(String oneRestaurantKey) throws IOException, JSONException {
-		Resty r = new Resty();
-		return r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
-				+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
-	}
-
-	// Call Google Custom Search API to get single picture URL for specific menu
-	// item
-	private JSONResource callApiToRetrieveMenuItemPictureURL() throws IOException {
-		Resty r = new Resty();
-		return r.json("https://www.googleapis.com/customsearch/v1?q="
-//				+ currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+") + "+"
-				+ currentItem.getName().replaceAll(" ", "+") + "+"
-//				+ this.currentItem.getRestaurant().getCity().replaceAll(" ", "+") + "+"
-				+ "&cx=002392119250457641008:zovcx9rlbaw&searchType=image&key=AIzaSyCPEZNXOBI9ZfcEzcEZfDjexTysIHeaScU&num=1&fields=items%2Flink");
 	}
 
 	// Populate a list of menu items based on results of API, item added if it
