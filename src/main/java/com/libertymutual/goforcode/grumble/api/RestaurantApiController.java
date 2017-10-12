@@ -26,7 +26,6 @@ import com.libertymutual.goforcode.grumble.services.RestaurantRepository;
 @RequestMapping ("/api")
 public class RestaurantApiController {
 	
-	//used to get random index
 	private Random randomGenerator;
 	private RestaurantRepository restaurantRepo;
 	private MenuItemRepository declinedMenuItemRepo;
@@ -52,7 +51,6 @@ public class RestaurantApiController {
 		for (int i = 0; i < restaurantArray.length(); i++) {
 			Restaurant oneRestaurant = new Restaurant();
 			oneRestaurant.setRestaurantApiKey(restaurantArray.getJSONObject(i).getString("apiKey"));
-//			System.out.println(oneRestaurant.getRestaurantApiKey());
 			oneRestaurant.setRestaurantName(restaurantArray.getJSONObject(i).getString("name"));
 			oneRestaurant.setLatitude(restaurantArray.getJSONObject(i).getString("latitude"));
 			oneRestaurant.setLongitude(restaurantArray.getJSONObject(i).getString("longitude"));
@@ -61,20 +59,18 @@ public class RestaurantApiController {
 			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
 			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
 			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
-//			System.out.println(oneRestaurant.getRestaurantName());
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);
 		}
 		
-		//Using random generator to return random value based on size of restaurant list
+		//Call get random index method to return integer based on size of restaurant list then populate single restaurant
 		int index = getARandomIndex(restaurantList.size());
 		Restaurant restaurant = restaurantList.get(index);
 		String oneRestaurantKey = restaurant.getRestaurantApiKey();
 		System.out.println(restaurantList.get(index).getRestaurantName());
 		
-		//Call EatStreet API to get menu for desired restaurant
-		JSONArray menuSections = r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
-									+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
+		//Call API to retrieve menu which returns JSON array of menu sections
+		JSONArray menuSections = callApiToRetrieveMenu(oneRestaurantKey);
 		
 		//Call generate menu item list method to fill our list of menu items
 		List<MenuItem> menuItemList = generateMenuItemList(menuSections, restaurant);
@@ -111,43 +107,48 @@ public class RestaurantApiController {
 	
 	@GetMapping("/item")
 	public MenuItem getAnotherMenuItem() throws Exception {
+		//Declare local variables
+		int index = 0;
+		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
+		
+		//Add declined item to our list of declined menu items
 		this.declinedMenuItemRepo.save(this.currentItem);
 		
-		Resty r = new Resty();
-		
+		//Retrieve full list of available restaurants
 		List<Restaurant> restaurantList = restaurantRepo.findAll();
 		
-		//Using random generator to return random value based on size of restaurant list
-		int index = getARandomIndex(restaurantList.size());
-		Restaurant restaurant = restaurantList.get(index);
-		String oneRestaurantKey = restaurant.getRestaurantApiKey();
-		System.out.println(restaurantList.get(index).getRestaurantName());
-		
-		//Call EatStreet API to get menu for desired restaurant
 		try {
-			JSONArray menuSections = r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
-					+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
-			
-			//Call generate menu item list method to fill our list of menu items
-			List<MenuItem> menuItemList = generateMenuItemList(menuSections, restaurant);
-			
-			//Select random menu item and return it
-			if (menuItemList.size() > 1) {
-				index = getARandomIndex(menuItemList.size() - 1);
-			} else {
-				System.out.println("size check is working!");
-				return getAnotherMenuItem();
-			}
+			boolean weHaveAValidIndex = false;
+			while (!weHaveAValidIndex) {
+				//Using random generator to return random value based on size of restaurant list
+				index = getARandomIndex(restaurantList.size());
+				Restaurant restaurant = restaurantList.get(index);
+				String oneRestaurantKey = restaurant.getRestaurantApiKey();
+				System.out.println(restaurantList.get(index).getRestaurantName());
+				
+				//Call API to retrieve menu which returns JSON array of menu sections
+				JSONArray menuSections = callApiToRetrieveMenu(oneRestaurantKey);
+				
+				//Call generate menu item list method to fill our list of menu items
+				menuItemList = generateMenuItemList(menuSections, restaurant);
+				
+				//Select random menu item and return it
+				if (menuItemList.size() > 1) {
+					index = getARandomIndex(menuItemList.size() - 1);
+					weHaveAValidIndex = true;
+				} else {
+					restaurantRepo.delete(restaurant);
+					System.out.println("size check is working!");
+				}
+			}//end of while loop; should have index to retrieve single menu item at this point	
 			
 			this.currentItem = menuItemList.get(index);
 			System.out.println("Name of Item: " + menuItemList.get(index).getName());
 			System.out.println("Price: " + menuItemList.get(index).getBasePrice());
 			System.out.println("Description: " + menuItemList.get(index).getDescription());
-			JSONResource menuImage = r.json( 
-					"https://www.googleapis.com/customsearch/v1?q="+
-					currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+")+"+"+currentItem.getName().replaceAll(" ", "+")+"+"+
-					this.currentItem.getRestaurant().getCity().replaceAll(" ", "+")+"+"
-					+"&cx=008419413090451472490:9ehq9f7q5q8&searchType=image&key=AIzaSyBR1FQBAgE0KiZLS2eYLuer3r992uxJUSo&num=1&fields=items%2Flink");
+			
+			//Call picture URL method to return JSONResource containing single link to a menu item photo
+			JSONResource menuImage = callApiToRetrieveMenuItemPictureURL();
 			
 			try {
 				JSONArray imageArray = (JSONArray) menuImage.get("items");
@@ -167,13 +168,31 @@ public class RestaurantApiController {
 		}
 	}
 	
+	
 	//Takes a size parameter and returns a random integer within that range
-	private int getARandomIndex (int size) {
+	private int getARandomIndex(int size) {
 		return randomGenerator.nextInt(size);
 	}
 	
+	//Call EatStreet API to get menu for desired restaurant
+	private JSONArray callApiToRetrieveMenu(String oneRestaurantKey) throws IOException, JSONException {
+		Resty r = new Resty();
+		return r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
+				+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
+	}
+	
+	//Call Google Custom Search API to get single picture URL for specific menu item
+	private JSONResource callApiToRetrieveMenuItemPictureURL() throws IOException {
+		Resty r = new Resty();
+		return r.json( 
+				"https://www.googleapis.com/customsearch/v1?q="+
+				currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+")+"+"+currentItem.getName().replaceAll(" ", "+")+"+"+
+				this.currentItem.getRestaurant().getCity().replaceAll(" ", "+")+"+"
+				+"&cx=008419413090451472490:9ehq9f7q5q8&searchType=image&key=AIzaSyBR1FQBAgE0KiZLS2eYLuer3r992uxJUSo&num=1&fields=items%2Flink");
+	}
+	
 	//Populate a list of menu items based on results of API, item added if it contains description and costs more than $3
-	private List<MenuItem> generateMenuItemList(JSONArray menuSections, Restaurant restaurant) throws Exception, JSONException {
+	private List<MenuItem> generateMenuItemList(JSONArray menuSections, Restaurant restaurant) throws IOException, JSONException {
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		for (int i = 0; i < menuSections.length(); i++) {
 			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
