@@ -67,33 +67,21 @@ public class RestaurantApiController {
 		}
 		
 		//Using random generator to return random value based on size of restaurant list
-		int index = randomGenerator.nextInt(restaurantList.size());
-		String oneRestaurantKey = restaurantList.get(index).getRestaurantApiKey();
+		int index = getARandomIndex(restaurantList.size());
+		Restaurant restaurant = restaurantList.get(index);
+		String oneRestaurantKey = restaurant.getRestaurantApiKey();
 		System.out.println(restaurantList.get(index).getRestaurantName());
 		
 		//Call EatStreet API to get menu for desired restaurant
 		JSONArray menuSections = r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
 									+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
 		
-		//Populate a list of menu items based on results of API, item added if it contains description and costs more than $3
-		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
-		for (int i = 0; i < menuSections.length(); i++) {
-			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
-				MenuItem oneItem = new MenuItem();
-				oneItem.setName(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
-				oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("basePrice").toString());
-				oneItem.setRestaurant(restaurantList.get(index));
-				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description")
-					&& Double.parseDouble(oneItem.getBasePrice()) > 3.00) {
-					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("description").toString());
-					menuItemList.add(oneItem);
-				}
-			}			
-		}
+		//Call generate menu item list method to fill our list of menu items
+		List<MenuItem> menuItemList = generateMenuItemList(menuSections, restaurant);
 		
 		//Select random menu item and return it
 		if (menuItemList.size() > 1) {
-			index = randomGenerator.nextInt(menuItemList.size() - 1);
+			index = getARandomIndex(menuItemList.size() - 1);
 		} else {
 			return newMenuItemRequest(city);
 		}
@@ -130,8 +118,9 @@ public class RestaurantApiController {
 		List<Restaurant> restaurantList = restaurantRepo.findAll();
 		
 		//Using random generator to return random value based on size of restaurant list
-		int index = randomGenerator.nextInt(restaurantList.size());
-		String oneRestaurantKey = restaurantList.get(index).getRestaurantApiKey();
+		int index = getARandomIndex(restaurantList.size());
+		Restaurant restaurant = restaurantList.get(index);
+		String oneRestaurantKey = restaurant.getRestaurantApiKey();
 		System.out.println(restaurantList.get(index).getRestaurantName());
 		
 		//Call EatStreet API to get menu for desired restaurant
@@ -139,26 +128,12 @@ public class RestaurantApiController {
 			JSONArray menuSections = r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
 					+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
 			
-			//Populate a list of menu items based on results of API, item added if it contains description and costs more than $3
-			List<MenuItem> menuItemList = new ArrayList<MenuItem>();
-			for (int i = 0; i < menuSections.length(); i++) {
-				for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
-					MenuItem oneItem = new MenuItem();
-					oneItem.setName(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
-					oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("basePrice").toString());
-					oneItem.setRestaurant(restaurantList.get(index));
-					if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description")
-						&& Double.parseDouble(oneItem.getBasePrice()) > 3.00
-						&& declinedMenuItemRepo.findByNameContaining(oneItem.getName()).size() == 0) {
-						oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("description").toString());
-						menuItemList.add(oneItem);
-					}
-				}			
-			}
+			//Call generate menu item list method to fill our list of menu items
+			List<MenuItem> menuItemList = generateMenuItemList(menuSections, restaurant);
 			
 			//Select random menu item and return it
 			if (menuItemList.size() > 1) {
-				index = randomGenerator.nextInt(menuItemList.size() - 1);
+				index = getARandomIndex(menuItemList.size() - 1);
 			} else {
 				System.out.println("size check is working!");
 				return getAnotherMenuItem();
@@ -190,6 +165,30 @@ public class RestaurantApiController {
 			System.out.println("exception check is working!");
 			return getAnotherMenuItem();
 		}
+	}
+	
+	//Takes a size parameter and returns a random integer within that range
+	private int getARandomIndex (int size) {
+		return randomGenerator.nextInt(size);
+	}
+	
+	//Populate a list of menu items based on results of API, item added if it contains description and costs more than $3
+	private List<MenuItem> generateMenuItemList(JSONArray menuSections, Restaurant restaurant) throws Exception, JSONException {
+		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
+		for (int i = 0; i < menuSections.length(); i++) {
+			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
+				MenuItem oneItem = new MenuItem();
+				oneItem.setName(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
+				oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("basePrice").toString());
+				oneItem.setRestaurant(restaurant);
+				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description")
+					&& Double.parseDouble(oneItem.getBasePrice()) > 3.00) {
+					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("description").toString());
+					menuItemList.add(oneItem);
+				}
+			}			
+		}
+		return menuItemList;
 	}
 
 }
