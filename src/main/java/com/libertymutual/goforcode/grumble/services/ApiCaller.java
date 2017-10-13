@@ -23,6 +23,8 @@ public class ApiCaller {
 	//Call EatStreet API to get list of restaurants based on lat and long
 	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude) throws IOException, Exception {
 		Resty r = new Resty();
+		System.out.println("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
+						"&method=both&access-token=44dbbeccae3c7537");
 		return (JSONArray) r
 				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
 						"&method=both&access-token=44dbbeccae3c7537")

@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerMapping;
 
 import us.monoid.json.JSONArray;
 import us.monoid.json.JSONException;
@@ -114,7 +117,7 @@ public class RestaurantApiController {
 	return this.currentItem;
 	}
 	
-	@GetMapping("/{latitude}/{longitude}")
+	@GetMapping("/{latitude}/{longitude}/")
 	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude) throws IOException, Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
@@ -128,9 +131,9 @@ public class RestaurantApiController {
 		} catch (IOException ioe) {
 			return this.nothingFound;
 		}
-		
+		System.out.println("passing the try/catch");
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
-
+		System.out.println(restaurantList.size());
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
