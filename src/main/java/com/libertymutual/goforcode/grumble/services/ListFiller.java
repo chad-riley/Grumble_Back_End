@@ -27,7 +27,6 @@ public class ListFiller {
 			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
 			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
 			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
-			System.out.println(oneRestaurant.getRestaurantName());
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);
 		}

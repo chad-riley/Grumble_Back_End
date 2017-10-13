@@ -2,6 +2,7 @@ package com.libertymutual.goforcode.grumble.services;
 
 import java.io.IOException;
 
+import com.libertymutual.goforcode.grumble.models.ImageApiCredentials;
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 
 import us.monoid.json.JSONArray;
@@ -10,6 +11,18 @@ import us.monoid.web.JSONResource;
 import us.monoid.web.Resty;
 
 public class ApiCaller {
+	
+	private ImageApiCredentials apiCreds;
+	private int index;
+	private String cxKey;
+	private String apiKey;
+	
+	public ApiCaller() {
+		this.apiCreds = new ImageApiCredentials();
+		this.index = 0;
+		this.cxKey = apiCreds.getCxKey(index);
+		this.apiKey = apiCreds.getApiKey(index);
+	}
 	
 	//Call EatStreet API to get list of restaurants based on city
 	public JSONArray callApiToRetrieveRestaurants (String city) throws IOException, Exception {
@@ -41,14 +54,31 @@ public class ApiCaller {
 	//Call Google Custom Search API to get single picture URL for specific menu item
 	public JSONResource callApiToRetrieveMenuItemPictureURL(MenuItem currentItem) throws IOException {
 		Resty r = new Resty();
-		String url = "https://www.googleapis.com/customsearch/v1?q=food+"
-//				+ currentItem.getRestaurant().getRestaurantName().replaceAll(" ", "+") + "+"
-			+ currentItem.getName() + "+"
-//				+ this.currentItem.getRestaurant().getCity().replaceAll(" ", "+") + "+"
-			+ "&cx=002392119250457641008:zovcx9rlbaw&searchType=image&key=AIzaSyCPEZNXOBI9ZfcEzcEZfDjexTysIHeaScU&num=1&fields=items%2Flink";
-		url = url.replaceAll(" ", "+");
-		url = url.replaceAll("\"", "");
-		url = url.replaceAll("`", "");
-		return r.json(url);
+		JSONResource reply = new JSONResource();
+		boolean foundAPic = false;
+		
+		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+"
+//				     + currentItem.getRestaurant().getRestaurantName() + "+"
+//				     + this.currentItem.getRestaurant().getCity() + "+"
+					 + currentItem.getName() + "+";
+		baseUrl = baseUrl.replaceAll(" ", "+");
+		baseUrl = baseUrl.replaceAll("\"", "");
+		baseUrl = baseUrl.replaceAll("`", "");
+		
+		while (!foundAPic) {
+			try {
+				String url = baseUrl + "&cx=" + this.cxKey + 
+				      "&searchType=image&key=" + this.apiKey + 
+				      "&num=1&fields=items%2Flink";				
+				reply = r.json(url);
+				foundAPic = true;
+			} catch (Exception e) {
+				System.out.println(e.getClass().getName());
+				this.index = this.index + 1;
+				this.cxKey = apiCreds.getCxKey(this.index);
+				this.apiKey = apiCreds.getApiKey(this.index);
+			}
+		}
+		return reply;
 	}
 }
