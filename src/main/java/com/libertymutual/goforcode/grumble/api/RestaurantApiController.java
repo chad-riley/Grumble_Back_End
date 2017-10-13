@@ -33,13 +33,19 @@ public class RestaurantApiController {
 	private MenuItem currentItem;
 	private ApiCaller apiCaller;
 	private ListFiller listFiller;
+	private MenuItem nothingFound;
 
 	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository declinedMenuItemRepo) {
-		randomGenerator = new Random();
+		this.randomGenerator = new Random();
 		this.restaurantRepo = restaurantRepo;
 		this.declinedMenuItemRepo = declinedMenuItemRepo;
 		this.apiCaller = new ApiCaller();
 		this.listFiller = new ListFiller();
+		
+		this.nothingFound = new MenuItem();
+		this.nothingFound.setName("No results found in that location");
+		this.nothingFound.setDescription("Please try a new location");
+		this.nothingFound.setImageURL("https://media.giphy.com/media/forX81kqyzD4A/giphy.gif");
 	}
 
 	@GetMapping("/{city}")
@@ -50,15 +56,22 @@ public class RestaurantApiController {
 		
 		restaurantRepo.deleteAll();
 
-		JSONArray restaurantArray = apiCaller.callApiToRetrieveRestaurants(city);
-
+		JSONArray restaurantArray = new JSONArray();
+		try {
+			restaurantArray = apiCaller.callApiToRetrieveRestaurants(city);
+		} catch (IOException ioe) {
+			return this.nothingFound;
+		}
+		
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
 			//Using random generator to return random value based on size of restaurant list
-			index = getARandomIndex(restaurantList.size());
+			if (restaurantList.size() > 0) index = getARandomIndex(restaurantList.size());
+			else return this.nothingFound;
+			
 			Restaurant restaurant = restaurantList.get(index);
 			String oneRestaurantKey = restaurant.getRestaurantApiKey();
 			System.out.println(restaurant.getRestaurantName());
@@ -109,15 +122,22 @@ public class RestaurantApiController {
 		
 		restaurantRepo.deleteAll();
 
-		JSONArray restaurantArray = apiCaller.callApiToRetrieveRestaurants(latitude, longitude);
-
+		JSONArray restaurantArray = new JSONArray();
+		try {
+			restaurantArray = apiCaller.callApiToRetrieveRestaurants(latitude, longitude);
+		} catch (IOException ioe) {
+			return this.nothingFound;
+		}
+		
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
 			//Using random generator to return random value based on size of restaurant list
-			index = getARandomIndex(restaurantList.size());
+			if (restaurantList.size() > 0) index = getARandomIndex(restaurantList.size());
+			else return this.nothingFound;
+			
 			Restaurant restaurant = restaurantList.get(index);
 			String oneRestaurantKey = restaurant.getRestaurantApiKey();
 			System.out.println(restaurant.getRestaurantName());
