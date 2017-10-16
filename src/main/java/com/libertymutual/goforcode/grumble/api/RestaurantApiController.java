@@ -48,8 +48,8 @@ public class RestaurantApiController {
 		this.nothingFound.setImageURL("https://media.giphy.com/media/forX81kqyzD4A/giphy.gif");
 	}
 
-	@GetMapping("/{city}")
-	public MenuItem newMenuItemRequest(@PathVariable String city) throws IOException, Exception {
+	@GetMapping("/{city}/{pickup_radius}/")
+	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius) throws IOException, Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
@@ -58,7 +58,7 @@ public class RestaurantApiController {
 
 		JSONArray restaurantArray = new JSONArray();
 		try {
-			restaurantArray = apiCaller.callApiToRetrieveRestaurants(city);
+			restaurantArray = apiCaller.callApiToRetrieveRestaurants(city, pickup_radius);
 		} catch (IOException ioe) {
 			return this.nothingFound;
 		}
@@ -114,8 +114,8 @@ public class RestaurantApiController {
 	return this.currentItem;
 	}
 	
-	@GetMapping("/{latitude}/{longitude}/")
-	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude) throws IOException, Exception {
+	@GetMapping("/{latitude}/{longitude}/{pickup_radius}")
+	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius) throws IOException, Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
@@ -124,7 +124,7 @@ public class RestaurantApiController {
 
 		JSONArray restaurantArray = new JSONArray();
 		try {
-			restaurantArray = apiCaller.callApiToRetrieveRestaurants(latitude, longitude);
+			restaurantArray = apiCaller.callApiToRetrieveRestaurants(latitude, longitude, pickup_radius);
 		} catch (IOException ioe) {
 			return this.nothingFound;
 		}

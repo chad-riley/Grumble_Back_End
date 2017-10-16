@@ -25,22 +25,22 @@ public class ApiCaller {
 	}
 	
 	//Call EatStreet API to get list of restaurants based on city
-	public JSONArray callApiToRetrieveRestaurants (String city) throws IOException, Exception {
+	public JSONArray callApiToRetrieveRestaurants (String city, String pickup_radius) throws IOException, Exception {
 		Resty r = new Resty();
 		return (JSONArray) r
-				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both&street-address=" + city
+				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both" + "&pickup-radius=" + pickup_radius + "&street-address=" + city
 						+ "&access-token=44dbbeccae3c7537")
 				.get("restaurants");
 	}
 	
 	//Call EatStreet API to get list of restaurants based on lat and long
-	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude) throws IOException, Exception {
+	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude, String pickup_radius) throws IOException, Exception {
 		Resty r = new Resty();
 		System.out.println("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
 						"&method=both&access-token=44dbbeccae3c7537");
 		return (JSONArray) r
 				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
-						"&method=both&access-token=44dbbeccae3c7537")
+						"&method=both" + "&&pickup-radius=" + pickup_radius + "&access-token=44dbbeccae3c7537")
 				.get("restaurants");
 	}
 	
