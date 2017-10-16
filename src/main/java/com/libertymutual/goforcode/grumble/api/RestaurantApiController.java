@@ -114,7 +114,7 @@ public class RestaurantApiController {
 	return this.currentItem;
 	}
 	
-	@GetMapping("/{latitude}/{longitude}/{pickup_radius}")
+	@GetMapping("/{latitude}/{longitude}/{pickup_radius}/")
 	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius) throws IOException, Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
