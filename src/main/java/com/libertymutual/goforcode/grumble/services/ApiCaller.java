@@ -40,7 +40,7 @@ public class ApiCaller {
 						"&method=both&access-token=44dbbeccae3c7537");
 		return (JSONArray) r
 				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
-						"&method=both" + "&&pickup-radius=" + pickup_radius + "&access-token=44dbbeccae3c7537")
+						"&method=both" + "&pickup-radius=" + pickup_radius + "&access-token=44dbbeccae3c7537")
 				.get("restaurants");
 	}
 	

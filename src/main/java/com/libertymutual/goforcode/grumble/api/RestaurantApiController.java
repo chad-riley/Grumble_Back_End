@@ -64,7 +64,9 @@ public class RestaurantApiController {
 		}
 		
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
-
+		
+		System.out.println("# of res:" + restaurantList.size());
+		
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
@@ -130,7 +132,7 @@ public class RestaurantApiController {
 		}
 		System.out.println("passing the try/catch");
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
-		System.out.println(restaurantList.size());
+		System.out.println("# of res:" + restaurantList.size());
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
