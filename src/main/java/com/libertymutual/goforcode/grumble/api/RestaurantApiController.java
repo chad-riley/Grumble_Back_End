@@ -87,6 +87,6 @@ public class RestaurantApiController {
 		
 		this.currentItem = itemFinder.getASingleMenuItem(restaurantList, declinedMenuItemRepo, restaurantRepo);
 		
-		return this.currentItem;
+		return this.currentItem;  
 	}
 }
