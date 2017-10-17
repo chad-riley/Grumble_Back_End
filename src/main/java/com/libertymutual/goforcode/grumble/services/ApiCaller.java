@@ -31,7 +31,7 @@ public class ApiCaller {
 				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both" + "&pickup-radius=" + pickup_radius + "&street-address=" + city
 						+ "&access-token=44dbbeccae3c7537")
 				.get("restaurants");
-	}
+	} 
 	
 	//Call EatStreet API to get list of restaurants based on lat and long
 	public JSONArray callApiToRetrieveRestaurants(String latitude, String longitude, String pickup_radius) throws IOException, Exception {
