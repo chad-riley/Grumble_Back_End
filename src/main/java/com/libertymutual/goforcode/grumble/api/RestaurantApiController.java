@@ -50,10 +50,6 @@ public class RestaurantApiController {
 
 	@GetMapping("/{city}/{pickup_radius}/")
 	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius) throws IOException, Exception {
-		int index = 0;
-		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
-		JSONResource menuImage = new JSONResource();
-		
 		restaurantRepo.deleteAll();
 
 		JSONArray restaurantArray = new JSONArray();
@@ -61,67 +57,16 @@ public class RestaurantApiController {
 			restaurantArray = apiCaller.callApiToRetrieveRestaurants(city, pickup_radius);
 		} catch (IOException ioe) {
 			return this.nothingFound;
-		}
-		
+		}		
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 		
-		System.out.println("# of res:" + restaurantList.size());
+		this.currentItem = getASingleMenuItem(restaurantList);
 		
-		boolean weHaveAValidIndex = false;
-		boolean weHaveAValidPhoto = false;
-		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
-			//Using random generator to return random value based on size of restaurant list
-			if (restaurantList.size() > 0) index = getARandomIndex(restaurantList.size());
-			else return this.nothingFound;
-			
-			Restaurant restaurant = restaurantList.get(index);
-			String oneRestaurantKey = restaurant.getRestaurantApiKey();
-			System.out.println(restaurant.getRestaurantName());
-			
-			try {
-				//Call API to retrieve menu which returns JSON array of menu sections
-				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
-				
-				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
-				
-				//Select random menu item and return it
-				if (menuItemList.size() > 1) {
-					index = getARandomIndex(menuItemList.size() - 1);
-					this.currentItem = menuItemList.get(index);
-					System.out.println("Name of Item: " + menuItemList.get(index).getName());
-					System.out.println("Price: " + menuItemList.get(index).getBasePrice());
-					System.out.println("Description: " + menuItemList.get(index).getDescription());
-					weHaveAValidIndex = true;
-				} else {
-					restaurantRepo.delete(restaurant);
-					System.out.println("Exception: size of menu item list");
-				} 
-			} catch (IOException ioe) {
-					System.out.println("Exception: input/output from API calls");
-			}				
-				
-			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
-			
-			try {
-				JSONArray imageArray = (JSONArray) menuImage.get("items");
-				this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
-				if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
-			} catch (JSONException je) {
-				System.out.println("Exception: could not find photo");
-				this.declinedMenuItemRepo.save(this.currentItem);
-				weHaveAValidPhoto = false;
-			}
-		}// end of while loop; should have single menu item with photo at this point
-	return this.currentItem;
+		return this.currentItem;
 	}
 	
 	@GetMapping("/{latitude}/{longitude}/{pickup_radius}/")
 	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius) throws IOException, Exception {
-		int index = 0;
-		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
-		JSONResource menuImage = new JSONResource();
-		
 		restaurantRepo.deleteAll();
 
 		JSONArray restaurantArray = new JSONArray();
@@ -130,35 +75,64 @@ public class RestaurantApiController {
 		} catch (IOException ioe) {
 			return this.nothingFound;
 		}
-		System.out.println("passing the try/catch");
 		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
-		System.out.println("# of res:" + restaurantList.size());
+		
+		this.currentItem = getASingleMenuItem(restaurantList);
+		
+		return this.currentItem;
+	}
+
+	@GetMapping("/item")
+	public MenuItem getAnotherMenuItem() throws Exception {
+		this.declinedMenuItemRepo.save(this.currentItem);
+		
+		List<Restaurant> restaurantList = restaurantRepo.findAll();
+		
+		this.currentItem = getASingleMenuItem(restaurantList);
+		
+		return this.currentItem;
+	}
+
+	// Takes a size parameter and returns a random integer within that range
+	private int getARandomIndex(int size) {
+		return randomGenerator.nextInt(size);
+	}
+	
+	//Takes a list of restaurants and returns a single menu item 
+	private MenuItem getASingleMenuItem(List<Restaurant> restaurantList) throws Exception {
+		int index = 0;
+		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
+		JSONResource menuImage = new JSONResource();
+		
+		//Generate a valid index for a single menu item and a valid photo for that item
+		//Create two boolean indicators and run while loop if either indicator is still false
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
-			//Using random generator to return random value based on size of restaurant list
+			//Using random generator to return random index value based on size of restaurant list
+			//Otherwise return default nothing found menu item
 			if (restaurantList.size() > 0) index = getARandomIndex(restaurantList.size());
 			else return this.nothingFound;
 			
+			//Get single restaurant using random index and populate restaurant key
 			Restaurant restaurant = restaurantList.get(index);
 			String oneRestaurantKey = restaurant.getRestaurantApiKey();
-			System.out.println(restaurant.getRestaurantName());
 			
 			try {
-				//Call API to retrieve menu which returns JSON array of menu sections
+				//Call API to retrieve menu which returns JSON array of menu sections for that restaurant
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
 				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
 				
-				//Select random menu item and return it
+				//Using random generator to return random index value based on size of menu item list
+				//Select random menu item and store it in current item, set valid index indicator to true
 				if (menuItemList.size() > 1) {
 					index = getARandomIndex(menuItemList.size() - 1);
 					this.currentItem = menuItemList.get(index);
-					System.out.println("Name of Item: " + menuItemList.get(index).getName());
-					System.out.println("Price: " + menuItemList.get(index).getBasePrice());
-					System.out.println("Description: " + menuItemList.get(index).getDescription());
 					weHaveAValidIndex = true;
+				//If menu item list size is below threshold, remove restaurant from repository and while 
+				//loop will run again to get new restaurant
 				} else {
 					restaurantRepo.delete(restaurant);
 					System.out.println("Exception: size of menu item list");
@@ -167,8 +141,11 @@ public class RestaurantApiController {
 					System.out.println("Exception: input/output from API calls");
 			}				
 				
+			//Use API caller to get an image JSON resource for single menu item
 			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
 			
+			//Pull single image link from JSON response and set it on current item
+			//Switch valid photo indicator to true only when image is found
 			try {
 				JSONArray imageArray = (JSONArray) menuImage.get("items");
 				this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
@@ -178,72 +155,7 @@ public class RestaurantApiController {
 				this.declinedMenuItemRepo.save(this.currentItem);
 				weHaveAValidPhoto = false;
 			}
-		}// end of while loop; should have single menu item with photo at this point
-	return this.currentItem;
-	}
-
-	@GetMapping("/item")
-	public MenuItem getAnotherMenuItem() throws Exception {
-		//Declare local variables
-		int index = 0;
-		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
-		JSONResource menuImage = new JSONResource();
-		
-		//Add declined item to our list of declined menu items
-		this.declinedMenuItemRepo.save(this.currentItem);
-		
-		//Retrieve full list of available restaurants
-		List<Restaurant> restaurantList = restaurantRepo.findAll();
-		
-		boolean weHaveAValidIndex = false;
-		boolean weHaveAValidPhoto = false;
-		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
-			//Using random generator to return random value based on size of restaurant list
-			index = getARandomIndex(restaurantList.size());
-			Restaurant restaurant = restaurantList.get(index);
-			String oneRestaurantKey = restaurant.getRestaurantApiKey();
-			System.out.println(restaurantList.get(index).getRestaurantName());
-			
-			try {
-				//Call API to retrieve menu which returns JSON array of menu sections
-				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
-				
-				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
-				
-				//Select random menu item and return it
-				if (menuItemList.size() > 1) {
-					index = getARandomIndex(menuItemList.size() - 1);
-					this.currentItem = menuItemList.get(index);
-					System.out.println("Name of Item: " + menuItemList.get(index).getName());
-					System.out.println("Price: " + menuItemList.get(index).getBasePrice());
-					System.out.println("Description: " + menuItemList.get(index).getDescription());
-					weHaveAValidIndex = true;
-				} else {
-					restaurantRepo.delete(restaurant);
-					System.out.println("Exception: size of menu item list");
-				} 
-			} catch (IOException ioe) {
-					System.out.println("Exception: input/output from API calls");
-			}
-				
-			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
-			
-			try {
-				JSONArray imageArray = (JSONArray) menuImage.get("items");
-				this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
-				if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;				
-			} catch (JSONException je) {
-				System.out.println("Exception: could not find photo");
-				this.declinedMenuItemRepo.save(this.currentItem);
-				weHaveAValidPhoto = false;
-			}
-		}// end of while loop; should have single menu item with photo at this point
-	return this.currentItem;
-	}
-
-	// Takes a size parameter and returns a random integer within that range
-	private int getARandomIndex(int size) {
-		return randomGenerator.nextInt(size);
+		}//End of while loop; should have single menu item with photo at this point
+		return this.currentItem;
 	}
 }
