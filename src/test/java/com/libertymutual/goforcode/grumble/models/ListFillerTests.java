@@ -119,7 +119,7 @@ public class ListFillerTests {
 		restaurant.setFoodType(restaurantArray.getJSONObject(0).getString("foodTypes"));
 		restaurant.setUrl(restaurantArray.getJSONObject(0).getString("url"));
 		restaurantList.add(restaurant);
-		restaurantRepo.save(restaurant);
+		restaurantRepo.save(restaurant); 
 
 		//when(restaurantRepo.save(restaurant)).thenReturn(restaurantList);
 		
