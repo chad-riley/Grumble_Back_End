@@ -9,6 +9,7 @@ import com.libertymutual.goforcode.grumble.models.Restaurant;
 
 import us.monoid.json.JSONArray;
 import us.monoid.json.JSONException;
+import us.monoid.json.JSONObject;
 
 public class ListFiller {
 	
@@ -27,6 +28,9 @@ public class ListFiller {
 			oneRestaurant.setState(restaurantArray.getJSONObject(i).getString("state"));
 			oneRestaurant.setZip(restaurantArray.getJSONObject(i).getString("zip"));
 			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
+			oneRestaurant.setFoodType(restaurantArray.getJSONObject(i).getString("foodTypes"));
+			oneRestaurant.setUrl(restaurantArray.getJSONObject(i).getString("url"));
+
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);
 		}
