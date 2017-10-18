@@ -3,6 +3,8 @@ package com.libertymutual.goforcode.grumble.api;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +48,9 @@ public class RestaurantApiController {
 	}  
 
 	@GetMapping("/{city}/{pickup_radius}/")
-	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius) throws IOException, Exception {
+	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius, HttpServletRequest request) throws IOException, Exception {
+		System.out.println(request.getRequestedSessionId());
+		System.out.println(request.getCookies());
 		restaurantRepo.deleteAll();
 
 		JSONArray restaurantArray = new JSONArray();
@@ -55,15 +59,16 @@ public class RestaurantApiController {
 		} catch (IOException ioe) {
 			return this.nothingFound;
 		}		
-		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
+		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 		
-		this.currentItem = itemFinder.getASingleMenuItem(restaurantList, declinedMenuItemRepo, restaurantRepo);
+		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo);
 		
 		return this.currentItem;
 	}
 	
 	@GetMapping("/{latitude}/{longitude}/{pickup_radius}/")
-	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius) throws IOException, Exception {
+	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius, HttpServletRequest request) throws IOException, Exception {
+		System.out.println(request.getRequestedSessionId());
 		restaurantRepo.deleteAll();
 
 		JSONArray restaurantArray = new JSONArray();
@@ -72,20 +77,19 @@ public class RestaurantApiController {
 		} catch (IOException ioe) {
 			return this.nothingFound;
 		}
-		List<Restaurant> restaurantList = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
+		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
 		
-		this.currentItem = itemFinder.getASingleMenuItem(restaurantList, declinedMenuItemRepo, restaurantRepo);
+		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo);
 		
 		return this.currentItem;
 	}
 
 	@GetMapping("/item")
-	public MenuItem getAnotherMenuItem() throws Exception {
+	public MenuItem getAnotherMenuItem(HttpServletRequest request) throws Exception {
+		System.out.println(request.getRequestedSessionId());
 		this.declinedMenuItemRepo.save(this.currentItem);
 		
-		List<Restaurant> restaurantList = restaurantRepo.findAll();
-		
-		this.currentItem = itemFinder.getASingleMenuItem(restaurantList, declinedMenuItemRepo, restaurantRepo);
+		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo);
 		
 		return this.currentItem;  
 	}

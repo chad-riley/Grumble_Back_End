@@ -56,11 +56,11 @@ public class ApiCaller {
 		boolean foundAPic = false;
 		
 		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+entree+"
-				     + currentItem.getName();
+				     + encode(currentItem.getName());
 //				     + this.currentItem.getRestaurant().getCity() + "+"
-//					 + currentItem.getRestaurant().getRestaurantName();
+//					 + "+\"" + encode(currentItem.getRestaurant().getRestaurantName()) + "\"";
 		baseUrl = baseUrl.replaceAll(" ", "+");
-		baseUrl = baseUrl.replaceAll("\"", "");
+//		baseUrl = baseUrl.replaceAll("\"", "");
 		baseUrl = baseUrl.replaceAll("`", "");
 		
 		while (!foundAPic) {
@@ -71,6 +71,7 @@ public class ApiCaller {
 				reply = r.json(url);
 				foundAPic = true;
 			} catch (Exception e) {
+				System.out.println("Key not working");
 				System.out.println(e.getClass().getName());
 				this.index = this.index + 1;
 				this.cxKey = apiCreds.getCxKey(this.index);
@@ -78,5 +79,9 @@ public class ApiCaller {
 			}
 		}
 		return reply;
+	}
+	
+	private String encode(String s) {
+		return s.replaceAll("[\"`]", "");
 	}
 }

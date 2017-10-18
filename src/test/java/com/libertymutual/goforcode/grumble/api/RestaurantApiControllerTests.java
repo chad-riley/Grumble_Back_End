@@ -7,13 +7,13 @@ import org.junit.Test;
 
 public class RestaurantApiControllerTests {
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@Test
-	public void test() {
-		fail("Not yet implemented");
-	}
+//	@Before
+//	public void setUp() throws Exception {
+//	}
+//
+//	@Test
+//	public void test() {
+//		fail("Not yet implemented");
+//	}
 
 }

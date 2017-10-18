@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 import com.libertymutual.goforcode.grumble.models.Restaurant;
 
@@ -30,32 +33,37 @@ public class MenuItemFinder {
 	}
 	
 	//Takes a list of restaurants and returns a single menu item 
-	public MenuItem getASingleMenuItem(List<Restaurant> restaurantList, MenuItemRepository declinedMenuItemRepo, RestaurantRepository restaurantRepo) 
+	public MenuItem getASingleMenuItem(MenuItemRepository declinedMenuItemRepo, RestaurantRepository restaurantRepo) 
 		    throws Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
+		
+		int quantity = restaurantRepo.findAll().size();
+		System.out.println(quantity);
+		int idx = (int)(Math.random() * quantity);
+		Page<Restaurant> restaurantPage = restaurantRepo.findAll(new PageRequest(idx, 1));
+		Restaurant singleRestaurant = null;
+		if (restaurantPage.hasContent()) {
+			singleRestaurant = restaurantPage.getContent().get(0);
+		} else {
+			System.out.println("Can't locate a restaurant");
+			return this.nothingFound;
+		}
+		System.out.println(singleRestaurant.getRestaurantName());
+		String oneRestaurantKey = singleRestaurant.getRestaurantApiKey();
 		
 		//Generate a valid index for a single menu item and a valid photo for that item
 		//Create two boolean indicators and run while loop if either indicator is still false
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
-			//Using random generator to return random index value based on size of restaurant list
-			//Otherwise return default nothing found menu item
-			if (restaurantList.size() > 0) index = getARandomIndex(restaurantList.size());
-			else return this.nothingFound;
-			
-			//Get single restaurant using random index and populate restaurant key
-			Restaurant restaurant = restaurantList.get(index);
-			String oneRestaurantKey = restaurant.getRestaurantApiKey();
-			
 			try {
 				//Call API to retrieve menu which returns JSON array of menu sections for that restaurant
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, restaurant, declinedMenuItemRepo);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, singleRestaurant, declinedMenuItemRepo);
 				
 				//Using random generator to return random index value based on size of menu item list
 				//Select random menu item and store it in current item, set valid index indicator to true
@@ -66,7 +74,7 @@ public class MenuItemFinder {
 				//If menu item list size is below threshold, remove restaurant from repository and while 
 				//loop will run again to get new restaurant
 				} else {
-					restaurantRepo.delete(restaurant);
+					restaurantRepo.delete(singleRestaurant);
 					System.out.println("Exception: size of menu item list");
 				} 
 			} catch (IOException ioe) {
