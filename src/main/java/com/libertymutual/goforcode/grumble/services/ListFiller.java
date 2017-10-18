@@ -33,8 +33,8 @@ public class ListFiller {
 
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);
-		}
-		return restaurantList;
+		}  
+		return restaurantList; 
 	}
 	
 	// Populate a list of menu items based on results of API, item added if it

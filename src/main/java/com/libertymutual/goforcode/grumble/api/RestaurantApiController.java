@@ -43,7 +43,7 @@ public class RestaurantApiController {
 		this.nothingFound.setName("No results found in that location");
 		this.nothingFound.setDescription("Please try a new location");
 		this.nothingFound.setImageURL("https://media.giphy.com/media/forX81kqyzD4A/giphy.gif");
-	}
+	}  
 
 	@GetMapping("/{city}/{pickup_radius}/")
 	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius) throws IOException, Exception {
@@ -87,6 +87,6 @@ public class RestaurantApiController {
 		
 		this.currentItem = itemFinder.getASingleMenuItem(restaurantList, declinedMenuItemRepo, restaurantRepo);
 		
-		return this.currentItem;
+		return this.currentItem;  
 	}
 }
