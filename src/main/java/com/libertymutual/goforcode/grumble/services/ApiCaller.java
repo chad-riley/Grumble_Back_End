@@ -55,8 +55,8 @@ public class ApiCaller {
 		JSONResource reply = new JSONResource();
 		boolean foundAPic = false;
 		
-		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+entree+"
-				     + encode(currentItem.getName());
+		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+"
+				     + (currentItem.getName());
 //				     + this.currentItem.getRestaurant().getCity() + "+"
 //					 + "+\"" + encode(currentItem.getRestaurant().getRestaurantName()) + "\"";
 		baseUrl = baseUrl.replaceAll(" ", "+");
@@ -67,15 +67,21 @@ public class ApiCaller {
 			try {
 				String url = baseUrl + "&cx=" + this.cxKey + 
 				      "&searchType=image&key=" + this.apiKey + 
-				      "&num=1&fields=items%2Flink";				
+				      "&num=1&fields=items%2Flink";
+				System.out.println(url);
 				reply = r.json(url);
 				foundAPic = true;
 			} catch (Exception e) {
 				System.out.println("Key not working");
 				System.out.println(e.getClass().getName());
 				this.index = this.index + 1;
-				this.cxKey = apiCreds.getCxKey(this.index);
-				this.apiKey = apiCreds.getApiKey(this.index);
+				try {
+					this.cxKey = apiCreds.getCxKey(this.index);
+					this.apiKey = apiCreds.getApiKey(this.index);
+				} catch (IndexOutOfBoundsException ioobe) {
+					return null;
+				}
+				
 			}
 		}
 		return reply;

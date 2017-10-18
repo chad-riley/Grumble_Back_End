@@ -39,25 +39,25 @@ public class MenuItemFinder {
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
 		
-		int quantity = restaurantRepo.findAll().size();
-		System.out.println(quantity);
-		int idx = (int)(Math.random() * quantity);
-		Page<Restaurant> restaurantPage = restaurantRepo.findAll(new PageRequest(idx, 1));
-		Restaurant singleRestaurant = null;
-		if (restaurantPage.hasContent()) {
-			singleRestaurant = restaurantPage.getContent().get(0);
-		} else {
-			System.out.println("Can't locate a restaurant");
-			return this.nothingFound;
-		}
-		System.out.println(singleRestaurant.getRestaurantName());
-		String oneRestaurantKey = singleRestaurant.getRestaurantApiKey();
-		
 		//Generate a valid index for a single menu item and a valid photo for that item
 		//Create two boolean indicators and run while loop if either indicator is still false
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
+			int quantity = restaurantRepo.findAll().size();
+			System.out.println(quantity);
+			int idx = (int)(Math.random() * quantity);
+			Page<Restaurant> restaurantPage = restaurantRepo.findAll(new PageRequest(idx, 1));
+			Restaurant singleRestaurant = null;
+			if (restaurantPage.hasContent()) {
+				singleRestaurant = restaurantPage.getContent().get(0);
+			} else {
+				System.out.println("Can't locate a restaurant");
+				return this.nothingFound;
+			}
+			System.out.println(singleRestaurant.getRestaurantName());
+			String oneRestaurantKey = singleRestaurant.getRestaurantApiKey();
+			
 			try {
 				//Call API to retrieve menu which returns JSON array of menu sections for that restaurant
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
@@ -86,15 +86,20 @@ public class MenuItemFinder {
 			
 			//Pull single image link from JSON response and set it on current item
 			//Switch valid photo indicator to true only when image is found
-			try {
-				JSONArray imageArray = (JSONArray) menuImage.get("items");
-				this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
-				if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
-			} catch (JSONException je) {
-				System.out.println("Exception: could not find photo");
-				declinedMenuItemRepo.save(this.currentItem);
-				weHaveAValidPhoto = false;
-			}
+			if (menuImage == null) {
+				this.currentItem.setImageURL("http://www.newdesignfile.com/postpic/2015/02/nophoto-available-clip-art-free_68016.png");
+				weHaveAValidPhoto = true;
+			} else {
+				try {
+					JSONArray imageArray = (JSONArray) menuImage.get("items");
+					this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
+					if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
+				} catch (JSONException je) {
+					System.out.println("Exception: could not find photo");
+					declinedMenuItemRepo.save(this.currentItem);
+					weHaveAValidPhoto = false;
+				}
+			}			
 		}//End of while loop; should have single menu item with photo at this point
 		return this.currentItem;
 	}
