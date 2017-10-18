@@ -55,10 +55,10 @@ public class ApiCaller {
 		JSONResource reply = new JSONResource();
 		boolean foundAPic = false;
 		
-		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+"
-//				     + currentItem.getRestaurant().getRestaurantName() + "+"
+		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+entree+"
+				     + currentItem.getName();
 //				     + this.currentItem.getRestaurant().getCity() + "+"
-					 + currentItem.getName() + "+";
+//					 + currentItem.getRestaurant().getRestaurantName();
 		baseUrl = baseUrl.replaceAll(" ", "+");
 		baseUrl = baseUrl.replaceAll("\"", "");
 		baseUrl = baseUrl.replaceAll("`", "");
