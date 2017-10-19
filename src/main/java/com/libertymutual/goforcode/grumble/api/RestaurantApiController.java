@@ -29,7 +29,6 @@ public class RestaurantApiController {
 
 	private RestaurantRepository restaurantRepo;
 	private MenuItemRepository declinedMenuItemRepo;
-	private MenuItem currentItem;
 	private ApiCaller apiCaller;
 	private ListFiller listFiller;
 	private MenuItem nothingFound;
@@ -66,11 +65,11 @@ public class RestaurantApiController {
 		}		
 		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
-		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
 		
-		this.itemsSentOutToFrontEnd.add(this.currentItem);
+		this.itemsSentOutToFrontEnd.add(currentItem);
 		
-		return this.currentItem;
+		return currentItem;
 	}
 	
 	@PostMapping("/{latitude}/{longitude}/{pickup_radius}/")
@@ -87,16 +86,17 @@ public class RestaurantApiController {
 		}
 		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
-		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
 		
-		this.itemsSentOutToFrontEnd.add(this.currentItem);
+		this.itemsSentOutToFrontEnd.add(currentItem);
 		
-		return this.currentItem;
+		return currentItem;
 	}
 
 	@PostMapping("/item")
 	public MenuItem getAnotherMenuItem(HttpServletRequest request) throws Exception {
 		String key = keyGetter.getTheSessionKeyForRequest(request);
+		
 		System.out.println("before removal: " + this.itemsSentOutToFrontEnd.size());
 		MenuItem itemToRemove = new MenuItem();
 		for (MenuItem oneItem : this.itemsSentOutToFrontEnd) {
@@ -110,10 +110,10 @@ public class RestaurantApiController {
 			this.declinedMenuItemRepo.save(itemToRemove);
 		}		
 		
-		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
 		
-		this.itemsSentOutToFrontEnd.add(this.currentItem);
+		this.itemsSentOutToFrontEnd.add(currentItem);
 		
-		return this.currentItem;  
+		return currentItem;  
 	}
 }

@@ -46,6 +46,7 @@ public class MenuItemFinder {
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
 			List<Restaurant> thisSessionsRestaurants = restaurantRepo.findAllBySessionKey(key);
 			int idx = thisSessionsRestaurants.size();
+			System.out.println("Size of res. list: " + idx);
 			try {
 				idx = getARandomIndex(idx);
 			} catch (IndexOutOfBoundsException ioobe) {
