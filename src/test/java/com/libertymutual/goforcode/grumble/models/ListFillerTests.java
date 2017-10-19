@@ -48,16 +48,18 @@ public class ListFillerTests {
 		jo.put("phone", "555-555-5555");
 		jo.put("foodTypes", "Mexican");
 		jo.put("url", "www.somewhere.com");
+		jo.put("sessionKey", "123");
 		
 	} 
 
 	@Test
 	public void testFillMyListOfRestaurantsFillsAList() throws JSONException {
 		//arrange
+		String key = "123";
 		restaurantArray.put(jo);
 		
 		//act  
-		List<Restaurant> result = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo);
+		List<Restaurant> result = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
 		//assert
 		assertThat(result.size()).isEqualTo(1);
