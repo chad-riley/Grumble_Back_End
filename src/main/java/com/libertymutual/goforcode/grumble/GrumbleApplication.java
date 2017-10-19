@@ -19,7 +19,7 @@ public class GrumbleApplication {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/*").allowedOrigins("*");
+                registry.addMapping("/api/**").allowedOrigins("*").allowedHeaders("*").allowedMethods("*");
             }
         };
     }
