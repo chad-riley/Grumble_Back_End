@@ -56,7 +56,7 @@ public class ApiCaller {
 		boolean foundAPic = false;
 		
 		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+"
-				     + (currentItem.getName());
+				     + encode(currentItem.getName());
 //				     + this.currentItem.getRestaurant().getCity() + "+"
 //					 + "+\"" + encode(currentItem.getRestaurant().getRestaurantName()) + "\"";
 		baseUrl = baseUrl.replaceAll(" ", "+");
