@@ -28,22 +28,20 @@ import us.monoid.json.JSONArray;
 public class RestaurantApiController {
 
 	private RestaurantRepository restaurantRepo;
-	private MenuItemRepository declinedMenuItemRepo;
+	private MenuItemRepository menuItemRepo;
 	private ApiCaller apiCaller;
 	private ListFiller listFiller;
 	private MenuItem nothingFound;
 	private MenuItemFinder itemFinder;
 	private SessionKeyGetter keyGetter;
-	private List<MenuItem> itemsSentOutToFrontEnd;
 
-	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository declinedMenuItemRepo) {
+	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository menuItemRepo) {
 		this.restaurantRepo = restaurantRepo;
-		this.declinedMenuItemRepo = declinedMenuItemRepo;
+		this.menuItemRepo = menuItemRepo;
 		this.apiCaller = new ApiCaller();
 		this.listFiller = new ListFiller();
 		this.itemFinder = new MenuItemFinder();
 		this.keyGetter = new SessionKeyGetter();
-		this.itemsSentOutToFrontEnd = new ArrayList<MenuItem>();
 		
 		this.nothingFound = new MenuItem();
 		this.nothingFound.setName("No results found in that location");
@@ -65,9 +63,8 @@ public class RestaurantApiController {
 		}		
 		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
-		MenuItem currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
-		
-		this.itemsSentOutToFrontEnd.add(currentItem);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(restaurantRepo, key);
+		menuItemRepo.save(currentItem);
 		
 		return currentItem;
 	}
@@ -86,10 +83,9 @@ public class RestaurantApiController {
 		}
 		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
-		MenuItem currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
-		
-		this.itemsSentOutToFrontEnd.add(currentItem);
-		
+		MenuItem currentItem = itemFinder.getASingleMenuItem(restaurantRepo, key);
+		menuItemRepo.save(currentItem);
+				
 		return currentItem;
 	}
 
@@ -97,22 +93,13 @@ public class RestaurantApiController {
 	public MenuItem getAnotherMenuItem(HttpServletRequest request) throws Exception {
 		String key = keyGetter.getTheSessionKeyForRequest(request);
 		
-		System.out.println("before removal: " + this.itemsSentOutToFrontEnd.size());
-		MenuItem itemToRemove = new MenuItem();
-		for (MenuItem oneItem : this.itemsSentOutToFrontEnd) {
-			if (oneItem.getSessionKey().equals(key)) {
-				itemToRemove = oneItem;
-			}
-		}
-		if (itemToRemove != null) {
-			this.itemsSentOutToFrontEnd.remove(itemToRemove);
-			System.out.println("after removal: " + this.itemsSentOutToFrontEnd.size());
-			this.declinedMenuItemRepo.save(itemToRemove);
+		List<MenuItem> itemsToReject = menuItemRepo.findByItemHasBeenRejectedEqualsAndSessionKeyContaining(false, key);
+		for (MenuItem oneItem : itemsToReject) {
+			oneItem.setItemHasBeenRejected(true);
 		}		
 		
-		MenuItem currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
-		
-		this.itemsSentOutToFrontEnd.add(currentItem);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(restaurantRepo, key);
+		menuItemRepo.save(currentItem);
 		
 		return currentItem;  
 	}

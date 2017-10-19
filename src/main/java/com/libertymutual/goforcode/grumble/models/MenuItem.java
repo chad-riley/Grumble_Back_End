@@ -37,6 +37,8 @@ public class MenuItem {
 
 	private String sessionKey;
 
+	private boolean itemHasBeenRejected = false;
+
 	public Long getId() {
 		return id;
 	}
@@ -100,6 +102,14 @@ public class MenuItem {
 	
 	public String getSessionKey() {
 		return this.sessionKey;
+	}
+	
+	public void setItemHasBeenRejected(boolean itemHasBeenRejected) {
+		this.itemHasBeenRejected = itemHasBeenRejected;
+	}
+	
+	public boolean getItemHasBeenRejected() {
+		return this.itemHasBeenRejected;
 	}
 
 }

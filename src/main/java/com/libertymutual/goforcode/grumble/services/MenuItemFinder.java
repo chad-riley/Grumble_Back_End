@@ -33,8 +33,7 @@ public class MenuItemFinder {
 	}
 	
 	//Takes a list of restaurants and returns a single menu item 
-	public MenuItem getASingleMenuItem(MenuItemRepository declinedMenuItemRepo, RestaurantRepository restaurantRepo, String key) 
-		    throws Exception {
+	public MenuItem getASingleMenuItem(RestaurantRepository restaurantRepo, String key) throws Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
@@ -43,14 +42,15 @@ public class MenuItemFinder {
 		//Create two boolean indicators and run while loop if either indicator is still false
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
-		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
+		boolean itemHasNotBeenRejected = false;
+		while (!weHaveAValidIndex || !weHaveAValidPhoto || !itemHasNotBeenRejected) {
 			List<Restaurant> thisSessionsRestaurants = restaurantRepo.findAllBySessionKey(key);
 			int idx = thisSessionsRestaurants.size();
 			System.out.println("Size of res. list: " + idx);
 			try {
 				idx = getARandomIndex(idx);
 			} catch (IndexOutOfBoundsException ioobe) {
-				System.out.println("Could not find any restaurants");
+				System.out.println("Out of restaurants");
 				return this.nothingFound;
 			} catch (IllegalArgumentException iae) {
 				System.out.println("Could not find any restaurants");
@@ -64,7 +64,7 @@ public class MenuItemFinder {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, singleRestaurant, declinedMenuItemRepo, key);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, singleRestaurant, key);
 				
 				//Using random generator to return random index value based on size of menu item list
 				//Select random menu item and store it in current item, set valid index indicator to true
@@ -97,10 +97,15 @@ public class MenuItemFinder {
 					if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
 				} catch (JSONException je) {
 					System.out.println("Exception: could not find photo");
-					declinedMenuItemRepo.save(this.currentItem);
+					this.currentItem.setItemHasBeenRejected(true);
 					weHaveAValidPhoto = false;
 				}
-			}			
+			}
+			
+			//Check to see if menu item has been rejected
+			if (!currentItem.getItemHasBeenRejected()) {
+				itemHasNotBeenRejected = true;
+			}
 		}//End of while loop; should have single menu item with photo at this point
 		return this.currentItem;
 	}

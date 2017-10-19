@@ -10,6 +10,8 @@ import com.libertymutual.goforcode.grumble.models.MenuItem;
 public interface MenuItemRepository extends JpaRepository<MenuItem, Long>{
 	
 	List<MenuItem> findByNameContaining (String name);
+	
+	List<MenuItem> findByItemHasBeenRejectedEqualsAndSessionKeyContaining(boolean itemHasBeenRejected, String key);
 
 
 }

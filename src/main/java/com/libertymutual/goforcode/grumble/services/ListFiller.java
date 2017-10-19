@@ -14,7 +14,7 @@ public class ListFiller {
 	
 	// Populate a list of restaurants based on the results of the restaurant array 
 	// returned by EatStreet API
-	public List<Restaurant> fillMyListOfRestaurants(JSONArray restaurantArray, RestaurantRepository restaurantRepo, String key) throws JSONException {
+	public void fillMyListOfRestaurants(JSONArray restaurantArray, RestaurantRepository restaurantRepo, String key) throws JSONException {
 		List<Restaurant> restaurantList = new ArrayList<Restaurant>();
 		for (int i = 0; i < restaurantArray.length(); i++) {
 			Restaurant oneRestaurant = new Restaurant();
@@ -33,14 +33,13 @@ public class ListFiller {
 
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);
-		}  
-		return restaurantList; 
+		}
 	}
 	
 	// Populate a list of menu items based on results of API, item added if it
 	// contains description and costs more than $3, exclude items that contain 
 	// the text party or catering
-	public List<MenuItem> fillMyMenuItemList(JSONArray menuSections, Restaurant restaurant, MenuItemRepository declinedMenuItemRepo, String key) throws IOException, JSONException {
+	public List<MenuItem> fillMyMenuItemList(JSONArray menuSections, Restaurant restaurant, String key) throws IOException, JSONException {
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		for (int i = 0; i < menuSections.length(); i++) {
 			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
@@ -53,8 +52,7 @@ public class ListFiller {
 				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description") 
 					&& Double.parseDouble(oneItem.getBasePrice()) > 4.00
 					&& !oneItem.getName().toLowerCase().contains("party")
-					&& !oneItem.getName().toLowerCase().contains("catering")
-					&& declinedMenuItemRepo.findByNameContaining(oneItem.getName()).size() == 0) 
+					&& !oneItem.getName().toLowerCase().contains("catering")) 
 				{
 					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)
 							.get("description").toString());
