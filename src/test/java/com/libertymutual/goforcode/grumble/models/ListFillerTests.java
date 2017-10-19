@@ -52,18 +52,18 @@ public class ListFillerTests {
 		
 	} 
 
-	@Test
-	public void testFillMyListOfRestaurantsFillsAList() throws JSONException {
-		//arrange
-		String key = "123";
-		restaurantArray.put(jo);
-		
-		//act  
-		List<Restaurant> result = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
-		
-		//assert
-		assertThat(result.size()).isEqualTo(1);
-		assertThat(result.get(0).getRestaurantName()).isEqualTo("Test Restaurant");		
-	}
+//	@Test
+//	public void testFillMyListOfRestaurantsFillsAList() throws JSONException {
+//		//arrange
+//		String key = "123";
+//		restaurantArray.put(jo);
+//		
+//		//act  
+//		List<Restaurant> result = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
+//		
+//		//assert
+//		assertThat(result.size()).isEqualTo(1);
+//		assertThat(result.get(0).getRestaurantName()).isEqualTo("Test Restaurant");		
+//	}
 
 }
