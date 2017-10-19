@@ -12,5 +12,8 @@ import com.libertymutual.goforcode.grumble.models.Restaurant;
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long>{
 
 	List<Restaurant> findAllBySessionKey(String key);
+	
+	void deleteBySessionKey(String sessionKey);
+	
 
 }

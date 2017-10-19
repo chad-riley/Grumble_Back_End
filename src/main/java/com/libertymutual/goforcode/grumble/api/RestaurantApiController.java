@@ -52,7 +52,7 @@ public class RestaurantApiController {
 	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius, HttpServletRequest request) throws IOException, Exception {
 		String key = keyGetter.getTheSessionKeyForRequest(request);
 		
-		restaurantRepo.deleteAll();
+		restaurantRepo.deleteBySessionKey(key);
 
 		JSONArray restaurantArray = new JSONArray();
 		try {
