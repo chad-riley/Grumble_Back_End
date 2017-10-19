@@ -1,6 +1,5 @@
 package com.libertymutual.goforcode.grumble.models;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -14,17 +13,12 @@ import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import us.monoid.json.JSONArray;
-import us.monoid.json.JSONObject;
-
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-
 @Entity
 public class Restaurant {
 
 	@Id
-
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
@@ -56,6 +50,8 @@ public class Restaurant {
 	private String foodType;
 	
 	private String url;
+
+	private String sessionKey;
 
 	public Restaurant() {}
 	
@@ -167,6 +163,15 @@ public class Restaurant {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+
+	public void setSessionKey(String key) {
+		this.sessionKey = key;		
+	}
+	
+	public String getSessionKey() {
+		return this.sessionKey;
 	}
 
 }

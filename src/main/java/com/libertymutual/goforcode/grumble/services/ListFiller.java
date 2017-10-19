@@ -9,13 +9,12 @@ import com.libertymutual.goforcode.grumble.models.Restaurant;
 
 import us.monoid.json.JSONArray;
 import us.monoid.json.JSONException;
-import us.monoid.json.JSONObject;
 
 public class ListFiller {
 	
 	// Populate a list of restaurants based on the results of the restaurant array 
 	// returned by EatStreet API
-	public List<Restaurant> fillMyListOfRestaurants(JSONArray restaurantArray, RestaurantRepository restaurantRepo) throws JSONException {
+	public List<Restaurant> fillMyListOfRestaurants(JSONArray restaurantArray, RestaurantRepository restaurantRepo, String key) throws JSONException {
 		List<Restaurant> restaurantList = new ArrayList<Restaurant>();
 		for (int i = 0; i < restaurantArray.length(); i++) {
 			Restaurant oneRestaurant = new Restaurant();
@@ -30,6 +29,7 @@ public class ListFiller {
 			oneRestaurant.setPhone(restaurantArray.getJSONObject(i).getString("phone"));
 			oneRestaurant.setFoodType(restaurantArray.getJSONObject(i).getString("foodTypes"));
 			oneRestaurant.setUrl(restaurantArray.getJSONObject(i).getString("url"));
+			oneRestaurant.setSessionKey(key);
 
 			restaurantList.add(oneRestaurant);
 			restaurantRepo.save(oneRestaurant);

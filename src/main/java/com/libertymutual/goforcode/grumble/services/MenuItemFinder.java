@@ -33,7 +33,7 @@ public class MenuItemFinder {
 	}
 	
 	//Takes a list of restaurants and returns a single menu item 
-	public MenuItem getASingleMenuItem(MenuItemRepository declinedMenuItemRepo, RestaurantRepository restaurantRepo) 
+	public MenuItem getASingleMenuItem(MenuItemRepository declinedMenuItemRepo, RestaurantRepository restaurantRepo, String key) 
 		    throws Exception {
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
@@ -44,18 +44,15 @@ public class MenuItemFinder {
 		boolean weHaveAValidIndex = false;
 		boolean weHaveAValidPhoto = false;
 		while (!weHaveAValidIndex || !weHaveAValidPhoto) {
-			int quantity = restaurantRepo.findAll().size();
-			System.out.println(quantity);
-			int idx = (int)(Math.random() * quantity);
-			Page<Restaurant> restaurantPage = restaurantRepo.findAll(new PageRequest(idx, 1));
-			Restaurant singleRestaurant = null;
-			if (restaurantPage.hasContent()) {
-				singleRestaurant = restaurantPage.getContent().get(0);
-			} else {
-				System.out.println("Can't locate a restaurant");
+			List<Restaurant> thisSessionsRestaurants = restaurantRepo.findAllBySessionKey(key);
+			int idx = thisSessionsRestaurants.size();
+			try {
+				idx = getARandomIndex(idx);
+			} catch (IndexOutOfBoundsException ioobe) {
+				System.out.println("Could not find any restaurants");
 				return this.nothingFound;
 			}
-			System.out.println(singleRestaurant.getRestaurantName());
+			Restaurant singleRestaurant = thisSessionsRestaurants.get(idx);
 			String oneRestaurantKey = singleRestaurant.getRestaurantApiKey();
 			
 			try {
