@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 import com.libertymutual.goforcode.grumble.models.Restaurant;
 
@@ -19,7 +16,6 @@ public class MenuItemFinder {
 	private Random randomGenerator;
 	private ApiCaller apiCaller;
 	private ListFiller listFiller;
-	private MenuItem currentItem;
 	private MenuItem nothingFound;
 	
 	public MenuItemFinder() {
@@ -34,6 +30,7 @@ public class MenuItemFinder {
 	
 	//Takes a list of restaurants and returns a single menu item 
 	public MenuItem getASingleMenuItem(RestaurantRepository restaurantRepo, String key) throws Exception {
+		MenuItem currentItem = null;
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		JSONResource menuImage = new JSONResource();
@@ -70,7 +67,7 @@ public class MenuItemFinder {
 				//Select random menu item and store it in current item, set valid index indicator to true
 				if (menuItemList.size() > 1) {
 					index = getARandomIndex(menuItemList.size() - 1);
-					this.currentItem = menuItemList.get(index);
+					currentItem = menuItemList.get(index);
 					weHaveAValidIndex = true;
 				//If menu item list size is below threshold, remove restaurant from repository and while 
 				//loop will run again to get new restaurant
@@ -82,32 +79,34 @@ public class MenuItemFinder {
 					System.out.println("Exception: input/output from API calls");
 			}				
 				
-			//Use API caller to get an image JSON resource for single menu item
-			menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(this.currentItem);
-			
-			//Pull single image link from JSON response and set it on current item
-			//Switch valid photo indicator to true only when image is found
-			if (menuImage == null) {
-				this.currentItem.setImageURL("http://www.newdesignfile.com/postpic/2015/02/nophoto-available-clip-art-free_68016.png");
-				weHaveAValidPhoto = true;
-			} else {
-				try {
-					JSONArray imageArray = (JSONArray) menuImage.get("items");
-					this.currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
-					if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
-				} catch (JSONException je) {
-					System.out.println("Exception: could not find photo");
-					this.currentItem.setItemHasBeenRejected(true);
-					weHaveAValidPhoto = false;
+			if (currentItem != null) {
+				//Use API caller to get an image JSON resource for single menu item
+				menuImage = apiCaller.callApiToRetrieveMenuItemPictureURL(currentItem);
+				
+				//Pull single image link from JSON response and set it on current item
+				//Switch valid photo indicator to true only when image is found
+				if (menuImage == null) {
+					currentItem.setImageURL("http://www.newdesignfile.com/postpic/2015/02/nophoto-available-clip-art-free_68016.png");
+					weHaveAValidPhoto = true;
+				} else {
+					try {
+						JSONArray imageArray = (JSONArray) menuImage.get("items");
+						currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
+						if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
+					} catch (JSONException je) {
+						System.out.println("Exception: could not find photo");
+						currentItem.setItemHasBeenRejected(true);
+						weHaveAValidPhoto = false;
+					}
+				}
+				
+				//Check to see if menu item has been rejected
+				if (!currentItem.getItemHasBeenRejected()) {
+					itemHasNotBeenRejected = true;
 				}
 			}
-			
-			//Check to see if menu item has been rejected
-			if (!currentItem.getItemHasBeenRejected()) {
-				itemHasNotBeenRejected = true;
-			}
 		}//End of while loop; should have single menu item with photo at this point
-		return this.currentItem;
+		return currentItem;
 	}
 	
 	// Takes a size parameter and returns a random integer within that range
