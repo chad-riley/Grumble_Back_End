@@ -51,6 +51,9 @@ public class MenuItemFinder {
 			} catch (IndexOutOfBoundsException ioobe) {
 				System.out.println("Could not find any restaurants");
 				return this.nothingFound;
+			} catch (IllegalArgumentException iae) {
+				System.out.println("Could not find any restaurants");
+				return this.nothingFound;
 			}
 			Restaurant singleRestaurant = thisSessionsRestaurants.get(idx);
 			String oneRestaurantKey = singleRestaurant.getRestaurantApiKey();
@@ -60,7 +63,7 @@ public class MenuItemFinder {
 				JSONArray menuSections = apiCaller.callApiToRetrieveMenu(oneRestaurantKey);
 				
 				//Call generate menu item list method to fill our list of menu items
-				menuItemList = listFiller.fillMyMenuItemList(menuSections, singleRestaurant, declinedMenuItemRepo);
+				menuItemList = listFiller.fillMyMenuItemList(menuSections, singleRestaurant, declinedMenuItemRepo, key);
 				
 				//Using random generator to return random index value based on size of menu item list
 				//Select random menu item and store it in current item, set valid index indicator to true

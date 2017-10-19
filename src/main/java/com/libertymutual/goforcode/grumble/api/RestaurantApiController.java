@@ -1,6 +1,8 @@
 package com.libertymutual.goforcode.grumble.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,6 +35,7 @@ public class RestaurantApiController {
 	private MenuItem nothingFound;
 	private MenuItemFinder itemFinder;
 	private SessionKeyGetter keyGetter;
+	private List<MenuItem> itemsSentOutToFrontEnd;
 
 	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository declinedMenuItemRepo) {
 		this.restaurantRepo = restaurantRepo;
@@ -41,6 +44,7 @@ public class RestaurantApiController {
 		this.listFiller = new ListFiller();
 		this.itemFinder = new MenuItemFinder();
 		this.keyGetter = new SessionKeyGetter();
+		this.itemsSentOutToFrontEnd = new ArrayList<MenuItem>();
 		
 		this.nothingFound = new MenuItem();
 		this.nothingFound.setName("No results found in that location");
@@ -64,6 +68,8 @@ public class RestaurantApiController {
 		
 		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
 		
+		this.itemsSentOutToFrontEnd.add(this.currentItem);
+		
 		return this.currentItem;
 	}
 	
@@ -71,7 +77,7 @@ public class RestaurantApiController {
 	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius, HttpServletRequest request) throws IOException, Exception {
 		String key = keyGetter.getTheSessionKeyForRequest(request);
 		
-		restaurantRepo.deleteAll();
+		restaurantRepo.deleteBySessionKey(key);
 
 		JSONArray restaurantArray = new JSONArray();
 		try {
@@ -83,16 +89,30 @@ public class RestaurantApiController {
 		
 		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
 		
+		this.itemsSentOutToFrontEnd.add(this.currentItem);
+		
 		return this.currentItem;
 	}
 
 	@PostMapping("/item")
 	public MenuItem getAnotherMenuItem(HttpServletRequest request) throws Exception {
 		String key = keyGetter.getTheSessionKeyForRequest(request);
-		
-		this.declinedMenuItemRepo.save(this.currentItem);
+		System.out.println("before removal: " + this.itemsSentOutToFrontEnd.size());
+		MenuItem itemToRemove = new MenuItem();
+		for (MenuItem oneItem : this.itemsSentOutToFrontEnd) {
+			if (oneItem.getSessionKey().equals(key)) {
+				itemToRemove = oneItem;
+			}
+		}
+		if (itemToRemove != null) {
+			this.itemsSentOutToFrontEnd.remove(itemToRemove);
+			System.out.println("after removal: " + this.itemsSentOutToFrontEnd.size());
+			this.declinedMenuItemRepo.save(itemToRemove);
+		}		
 		
 		this.currentItem = itemFinder.getASingleMenuItem(declinedMenuItemRepo, restaurantRepo, key);
+		
+		this.itemsSentOutToFrontEnd.add(this.currentItem);
 		
 		return this.currentItem;  
 	}

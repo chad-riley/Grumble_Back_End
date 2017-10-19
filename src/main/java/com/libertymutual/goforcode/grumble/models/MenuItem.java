@@ -35,6 +35,8 @@ public class MenuItem {
 	@ManyToOne
 	private Restaurant restaurant;
 
+	private String sessionKey;
+
 	public Long getId() {
 		return id;
 	}
@@ -92,6 +94,12 @@ public class MenuItem {
 		this.restaurant = restaurant;
 	}
 	
+	public void setSessionKey(String sessionKey) {
+		this.sessionKey = sessionKey;
+	}
 	
+	public String getSessionKey() {
+		return this.sessionKey;
+	}
 
 }

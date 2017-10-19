@@ -40,7 +40,7 @@ public class ListFiller {
 	// Populate a list of menu items based on results of API, item added if it
 	// contains description and costs more than $3, exclude items that contain 
 	// the text party or catering
-	public List<MenuItem> fillMyMenuItemList(JSONArray menuSections, Restaurant restaurant, MenuItemRepository declinedMenuItemRepo) throws IOException, JSONException {
+	public List<MenuItem> fillMyMenuItemList(JSONArray menuSections, Restaurant restaurant, MenuItemRepository declinedMenuItemRepo, String key) throws IOException, JSONException {
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		for (int i = 0; i < menuSections.length(); i++) {
 			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
@@ -58,6 +58,7 @@ public class ListFiller {
 				{
 					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)
 							.get("description").toString());
+					oneItem.setSessionKey(key);
 					menuItemList.add(oneItem);
 				}
 			}
