@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,7 +48,7 @@ public class RestaurantApiController {
 		this.nothingFound.setImageURL("https://media.giphy.com/media/forX81kqyzD4A/giphy.gif");
 	}  
 
-	@GetMapping("/{city}/{pickup_radius}/")
+	@PostMapping("/{city}/{pickup_radius}/")
 	public MenuItem newMenuItemRequest(@PathVariable String city, @PathVariable String pickup_radius, HttpServletRequest request) throws IOException, Exception {
 		System.out.println(request.getRequestedSessionId());
 		System.out.println(request.getCookies());
@@ -66,7 +67,7 @@ public class RestaurantApiController {
 		return this.currentItem;
 	}
 	
-	@GetMapping("/{latitude}/{longitude}/{pickup_radius}/")
+	@PostMapping("/{latitude}/{longitude}/{pickup_radius}/")
 	public MenuItem newMenuItemRequestWithLatitudeAndLongitude(@PathVariable String latitude, @PathVariable String longitude, @PathVariable String pickup_radius, HttpServletRequest request) throws IOException, Exception {
 		System.out.println(request.getRequestedSessionId());
 		restaurantRepo.deleteAll();
@@ -84,7 +85,7 @@ public class RestaurantApiController {
 		return this.currentItem;
 	}
 
-	@GetMapping("/item")
+	@PostMapping("/item")
 	public MenuItem getAnotherMenuItem(HttpServletRequest request) throws Exception {
 		System.out.println(request.getRequestedSessionId());
 		this.declinedMenuItemRepo.save(this.currentItem);
