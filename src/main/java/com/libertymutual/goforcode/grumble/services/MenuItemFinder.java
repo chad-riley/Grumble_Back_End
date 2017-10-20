@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.libertymutual.goforcode.grumble.models.ImageApiCredentials;
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 import com.libertymutual.goforcode.grumble.models.Restaurant;
 
@@ -18,9 +19,9 @@ public class MenuItemFinder {
 	private ListFiller listFiller;
 	private MenuItem nothingFound;
 	
-	public MenuItemFinder() {
+	public MenuItemFinder(ImageApiCredentials credentials) {
 		this.randomGenerator = new Random();
-		this.apiCaller = new ApiCaller();
+		this.apiCaller = new ApiCaller(credentials);
 		this.listFiller = new ListFiller();
 		this.nothingFound = new MenuItem();
 		this.nothingFound.setName("No results found in that location");

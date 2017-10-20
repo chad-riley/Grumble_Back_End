@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.libertymutual.goforcode.grumble.models.ImageApiCredentials;
 import com.libertymutual.goforcode.grumble.models.MenuItem;
 import com.libertymutual.goforcode.grumble.services.ApiCaller;
 import com.libertymutual.goforcode.grumble.services.ListFiller;
@@ -35,12 +36,12 @@ public class RestaurantApiController {
 	private MenuItemFinder itemFinder;
 	private SessionKeyGetter keyGetter;
 
-	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository menuItemRepo) {
+	public RestaurantApiController(RestaurantRepository restaurantRepo, MenuItemRepository menuItemRepo, ImageApiCredentials credentials) {
 		this.restaurantRepo = restaurantRepo;
 		this.menuItemRepo = menuItemRepo;
-		this.apiCaller = new ApiCaller();
+		this.apiCaller = new ApiCaller(credentials);
 		this.listFiller = new ListFiller();
-		this.itemFinder = new MenuItemFinder();
+		this.itemFinder = new MenuItemFinder(credentials);
 		this.keyGetter = new SessionKeyGetter();
 		
 		this.nothingFound = new MenuItem();

@@ -17,8 +17,8 @@ public class ApiCaller {
 	private String cxKey;
 	private String apiKey;
 	
-	public ApiCaller() {
-		this.apiCreds = new ImageApiCredentials();
+	public ApiCaller(ImageApiCredentials credentials) {
+		this.apiCreds = credentials;
 		this.index = 0;
 		this.cxKey = apiCreds.getCxKey(index);
 		this.apiKey = apiCreds.getApiKey(index);
