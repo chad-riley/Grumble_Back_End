@@ -51,8 +51,13 @@ public class ListFiller {
 				oneItem.setRestaurant(restaurant);
 				if (menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).toString().contains("description") 
 					&& Double.parseDouble(oneItem.getBasePrice()) > 4.00
+					&& Double.parseDouble(oneItem.getBasePrice()) < 30.00
 					&& !oneItem.getName().toLowerCase().contains("party")
-					&& !oneItem.getName().toLowerCase().contains("catering")) 
+					&& !oneItem.getName().toLowerCase().contains("catering")
+					&& !oneItem.getName().toLowerCase().contains("soda")
+					&& !oneItem.getName().toLowerCase().contains("drink")
+					&& !oneItem.getName().toLowerCase().contains("beverage")
+					&& !oneItem.getName().toLowerCase().contains("sampler")) 
 				{
 					oneItem.setDescription(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)
 							.get("description").toString());
