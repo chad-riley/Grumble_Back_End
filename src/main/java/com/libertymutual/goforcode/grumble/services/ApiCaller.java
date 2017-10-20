@@ -16,12 +16,14 @@ public class ApiCaller {
 	private int index;
 	private String cxKey;
 	private String apiKey;
+	private String eatStreetKey;
 	
 	public ApiCaller(ImageApiCredentials credentials) {
 		this.apiCreds = credentials;
 		this.index = 0;
 		this.cxKey = apiCreds.getCxKey(index);
 		this.apiKey = apiCreds.getApiKey(index);
+		this.eatStreetKey = apiCreds.getEatStreetKey();
 	}
 	
 	//Call EatStreet API to get list of restaurants based on city
@@ -29,7 +31,7 @@ public class ApiCaller {
 		Resty r = new Resty();
 		return (JSONArray) r
 				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?method=both" + "&pickup-radius=" + pickup_radius + "&street-address=" + city
-						+ "&access-token=44dbbeccae3c7537")
+						+ "&access-token=" + this.eatStreetKey)
 				.get("restaurants");
 	} 
 	
@@ -38,7 +40,7 @@ public class ApiCaller {
 		Resty r = new Resty();
 		return (JSONArray) r
 				.json("https://api.eatstreet.com/publicapi/v1/restaurant/search?latitude=" + latitude + "&longitude=" + longitude +
-						"&method=both" + "&pickup-radius=" + pickup_radius + "&access-token=44dbbeccae3c7537")
+						"&method=both" + "&pickup-radius=" + pickup_radius + "&access-token=" + this.eatStreetKey)
 				.get("restaurants");
 	}
 	
@@ -46,7 +48,7 @@ public class ApiCaller {
 	public JSONArray callApiToRetrieveMenu(String oneRestaurantKey) throws IOException, JSONException {
 		Resty r = new Resty();
 		return r.json("https://api.eatstreet.com/publicapi/v1/restaurant/"
-				+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=44dbbeccae3c7537").array();
+				+ oneRestaurantKey + "/menu?includeCustomizations=false&access-token=" + this.eatStreetKey).array();
 	}
 	
 	//Call Google Custom Search API to get single picture URL for specific menu item

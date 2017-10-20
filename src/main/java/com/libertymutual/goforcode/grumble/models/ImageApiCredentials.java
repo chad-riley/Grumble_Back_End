@@ -10,11 +10,14 @@ import org.springframework.stereotype.Service;
 public class ImageApiCredentials {
 	private List<String> cxKey;
 	private List<String> apiKey;
+	private String eatStreetKey;
 	
-	public ImageApiCredentials (@Value("${secret.secret.keys}") String listOfKeysOriginallyCalledFromEnvironmentVariables) {
+	public ImageApiCredentials (@Value("${secret.secret.keys}") String listOfKeysOriginallyCalledFromEnvironmentVariables, 
+								@Value("${marginally.less.secret.key}") String eatStreetKeyComingFromEnvVariables) {
 		
 		this.cxKey = new ArrayList<String>();
 		this.apiKey = new ArrayList<String>();
+		this.eatStreetKey = eatStreetKeyComingFromEnvVariables;
 		
 		String[] pairs = listOfKeysOriginallyCalledFromEnvironmentVariables.split("\\|");
 		for (String pair : pairs) {
@@ -30,6 +33,10 @@ public class ImageApiCredentials {
 	
 	public String getApiKey(int index) {
 		return this.apiKey.get(index);
+	}
+
+	public String getEatStreetKey() {
+		return this.eatStreetKey;
 	}
 
 }
