@@ -64,7 +64,7 @@ public class RestaurantApiController {
 		}		
 		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
-		MenuItem currentItem = itemFinder.getASingleMenuItem(restaurantRepo, key);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(menuItemRepo, restaurantRepo, key);
 		menuItemRepo.save(currentItem);
 		
 		return currentItem;
@@ -84,7 +84,7 @@ public class RestaurantApiController {
 		}
 		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
 		
-		MenuItem currentItem = itemFinder.getASingleMenuItem(restaurantRepo, key);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(menuItemRepo, restaurantRepo, key);
 		menuItemRepo.save(currentItem);
 				
 		return currentItem;
@@ -99,7 +99,7 @@ public class RestaurantApiController {
 			oneItem.setItemHasBeenRejected(true);
 		}		
 		
-		MenuItem currentItem = itemFinder.getASingleMenuItem(restaurantRepo, key);
+		MenuItem currentItem = itemFinder.getASingleMenuItem(menuItemRepo, restaurantRepo, key);
 		menuItemRepo.save(currentItem);
 		
 		return currentItem;  

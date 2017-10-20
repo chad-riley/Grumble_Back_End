@@ -12,6 +12,8 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long>{
 	List<MenuItem> findByNameContaining (String name);
 	
 	List<MenuItem> findByItemHasBeenRejectedEqualsAndSessionKeyContaining(boolean itemHasBeenRejected, String key);
+	
+	List<MenuItem> findByNameContainingAndSessionKeyContaining(String name, String key);
 
 
 }

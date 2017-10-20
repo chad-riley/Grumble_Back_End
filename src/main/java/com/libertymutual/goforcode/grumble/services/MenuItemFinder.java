@@ -30,7 +30,7 @@ public class MenuItemFinder {
 	}
 	
 	//Takes a list of restaurants and returns a single menu item 
-	public MenuItem getASingleMenuItem(RestaurantRepository restaurantRepo, String key) throws Exception {
+	public MenuItem getASingleMenuItem(MenuItemRepository menuItemRepo, RestaurantRepository restaurantRepo, String key) throws Exception {
 		MenuItem currentItem = null;
 		int index = 0;
 		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
@@ -102,7 +102,7 @@ public class MenuItemFinder {
 				}
 				
 				//Check to see if menu item has been rejected
-				if (!currentItem.getItemHasBeenRejected()) {
+				if (menuItemRepo.findByNameContainingAndSessionKeyContaining(currentItem.getName(), key).size() == 0) {
 					itemHasNotBeenRejected = true;
 				}
 			}
