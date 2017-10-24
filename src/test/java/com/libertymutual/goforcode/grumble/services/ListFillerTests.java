@@ -1,4 +1,4 @@
-package com.libertymutual.goforcode.grumble.models;
+package com.libertymutual.goforcode.grumble.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -11,6 +11,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.libertymutual.goforcode.grumble.models.MenuItem;
+import com.libertymutual.goforcode.grumble.models.Restaurant;
 import com.libertymutual.goforcode.grumble.services.ListFiller;
 import com.libertymutual.goforcode.grumble.services.RestaurantRepository;
 
