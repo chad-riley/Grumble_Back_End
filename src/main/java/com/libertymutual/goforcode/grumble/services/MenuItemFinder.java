@@ -44,14 +44,11 @@ public class MenuItemFinder {
 		while (!weHaveAValidIndex || !weHaveAValidPhoto || !itemHasNotBeenRejected) {
 			List<Restaurant> thisSessionsRestaurants = restaurantRepo.findAllBySessionKey(key);
 			int idx = thisSessionsRestaurants.size();
-			System.out.println("Size of res. list: " + idx);
 			try {
 				idx = getARandomIndex(idx);
 			} catch (IndexOutOfBoundsException ioobe) {
-				System.out.println("Out of restaurants");
 				return this.nothingFound;
 			} catch (IllegalArgumentException iae) {
-				System.out.println("Could not find any restaurants");
 				return this.nothingFound;
 			}
 			Restaurant singleRestaurant = thisSessionsRestaurants.get(idx);
@@ -74,7 +71,6 @@ public class MenuItemFinder {
 				//loop will run again to get new restaurant
 				} else {
 					restaurantRepo.delete(singleRestaurant);
-					System.out.println("Exception: size of menu item list");
 				} 
 			} catch (IOException ioe) {
 					System.out.println("Exception: input/output from API calls");
@@ -95,7 +91,6 @@ public class MenuItemFinder {
 						currentItem.setImageURL(imageArray.getJSONObject(0).get("link").toString());
 						if (currentItem.getImageURL() != null) weHaveAValidPhoto = true;
 					} catch (JSONException je) {
-						System.out.println("Exception: could not find photo");
 						currentItem.setItemHasBeenRejected(true);
 						weHaveAValidPhoto = false;
 					}

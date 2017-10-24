@@ -59,8 +59,6 @@ public class ApiCaller {
 		
 		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+"
 				     + encode(currentItem.getName());
-//				     + this.currentItem.getRestaurant().getCity() + "+"
-//					 + "+" + encode(currentItem.getRestaurant().getRestaurantName());
 		baseUrl = baseUrl.replaceAll(" ", "+");
 		baseUrl = baseUrl.replaceAll("\"", "");
 		baseUrl = baseUrl.replaceAll("`", "");
@@ -70,12 +68,9 @@ public class ApiCaller {
 				String url = baseUrl + "&cx=" + this.cxKey + 
 				      "&searchType=image&key=" + this.apiKey + 
 				      "&num=1&fields=items%2Flink";
-				System.out.println(url);
 				reply = r.json(url);
 				foundAPic = true;
 			} catch (Exception e) {
-				System.out.println("Key not working");
-				System.out.println(e.getClass().getName());
 				this.index = this.index + 1;
 				try {
 					this.cxKey = apiCreds.getCxKey(this.index);

@@ -30,8 +30,6 @@ public class Restaurant {
 
 	@OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
 	public List<MenuItem> menuItems;
-	
-//	private List<FoodTypes> foodTypes;
 
 	private String address;
 
