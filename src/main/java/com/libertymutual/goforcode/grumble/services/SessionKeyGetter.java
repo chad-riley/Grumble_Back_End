@@ -15,9 +15,7 @@ public class SessionKeyGetter {
 	        buffer.append(line);
 	    }
 	    String data = buffer.toString();
-	    System.out.println(data);
 	    data = data.substring(15, 79);
-	    System.out.println(data);
 		return data;
 	}
 }
