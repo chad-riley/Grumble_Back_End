@@ -36,6 +36,14 @@ public class ListFillerTests {
 		restaurantArray = new JSONArray();  
 		restaurantRepo = mock(RestaurantRepository.class);
 		
+		
+		
+	} 
+
+	@Test
+	public void testFillMyListOfRestaurantsFillsAList() throws JSONException {
+		//arrange
+		String key = "123";
 		jo = new JSONObject();
 		jo.put("apiKey", "123");
 		jo.put("name", "Test Restaurant");
@@ -49,21 +57,18 @@ public class ListFillerTests {
 		jo.put("foodTypes", "Mexican");
 		jo.put("url", "www.somewhere.com");
 		jo.put("sessionKey", "123");
+		restaurantArray.put(jo);
 		
-	} 
-
-//	@Test
-//	public void testFillMyListOfRestaurantsFillsAList() throws JSONException {
-//		//arrange
-//		String key = "123";
-//		restaurantArray.put(jo);
-//		
-//		//act  
-//		List<Restaurant> result = listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
-//		
-//		//assert
-//		assertThat(result.size()).isEqualTo(1);
-//		assertThat(result.get(0).getRestaurantName()).isEqualTo("Test Restaurant");		
-//	}
+		//act  
+		listFiller.fillMyListOfRestaurants(restaurantArray, restaurantRepo, key);
+		
+		//assert
+		verify(restaurantRepo).save(any(Restaurant.class));	
+	}
+	
+	@Test 
+	public List<MenuItem> test_fillMyMenuItemList_returns_list_of_menu_items() {
+		
+	}
 
 }
