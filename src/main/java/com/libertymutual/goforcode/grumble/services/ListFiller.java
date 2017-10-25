@@ -44,6 +44,7 @@ public class ListFiller {
 		for (int i = 0; i < menuSections.length(); i++) {
 			for (int j = 0; j < menuSections.getJSONObject(i).getJSONArray("items").length(); j++) {
 				MenuItem oneItem = new MenuItem();
+				oneItem.setMenuSectionName(menuSections.getJSONObject(i).get("name").toString());
 				oneItem.setName(
 						menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j).get("name").toString());
 				oneItem.setBasePrice(menuSections.getJSONObject(i).getJSONArray("items").getJSONObject(j)

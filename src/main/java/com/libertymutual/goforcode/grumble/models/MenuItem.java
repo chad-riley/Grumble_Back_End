@@ -36,6 +36,8 @@ public class MenuItem {
 	private Restaurant restaurant;
 
 	private String sessionKey;
+	
+	private String menuSectionName;
 
 	private boolean itemHasBeenRejected = false;
 
@@ -110,6 +112,14 @@ public class MenuItem {
 	
 	public boolean getItemHasBeenRejected() {
 		return this.itemHasBeenRejected;
+	}
+
+	public void setMenuSectionName(String menuSectionName) {
+		this.menuSectionName = menuSectionName;
+	}
+	
+	public String getMenuSectionName() {
+		return this.menuSectionName;
 	}
 
 }

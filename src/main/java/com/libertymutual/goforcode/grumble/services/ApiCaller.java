@@ -56,13 +56,10 @@ public class ApiCaller {
 		Resty r = new Resty();
 		JSONResource reply = new JSONResource();
 		boolean foundAPic = false;
-		
-		String baseUrl = "https://www.googleapis.com/customsearch/v1?q=food+"
-				     + encode(currentItem.getName());
-		baseUrl = baseUrl.replaceAll(" ", "+");
-		baseUrl = baseUrl.replaceAll("\"", "");
-		baseUrl = baseUrl.replaceAll("`", "");
-		
+		String urlItemName = encode(currentItem.getName());
+		String urlMenuSectionName = encode(currentItem.getMenuSectionName());
+		String baseUrl = "https://www.googleapis.com/customsearch/v1?q="
+				     + urlMenuSectionName + "+" + urlItemName;
 		while (!foundAPic) {
 			try {
 				String url = baseUrl + "&cx=" + this.cxKey + 
@@ -85,6 +82,17 @@ public class ApiCaller {
 	}
 	
 	private String encode(String s) {
-		return s.replaceAll("[\"`]", "");
+		s = s.replaceAll("[0-9]","");
+		s = s.replaceAll("Small","");
+		s = s.replaceAll("Medium","");
+		s = s.replaceAll("Large","");
+		s = s.replaceAll("\\.", "");
+		s = s.replaceAll("-", "");
+		s = s.replaceAll("`", "");
+		s = s.replaceAll("\"", "");
+		s = s.replaceAll("   ", " ");
+		s = s.replaceAll("  ", " ");
+		s = s.replaceAll(" ", "+");
+		return s;
 	}
 }
